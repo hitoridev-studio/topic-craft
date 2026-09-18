@@ -27,6 +27,7 @@
   <video src="demo.mp4" poster="demo-poster.jpg" controls muted playsinline></video>
   <div class="btns"><button type="button" class="go" id="go">X に投稿</button><button type="button" class="sub" id="copy">本文をコピー</button></div>
   <p class="note" id="how" style="margin-top:8px">押すと共有シートが開く。X を選ぶと、投稿画面に本文と動画が入って開く。投稿ボタンは自分で押す。</p>
+  <p class="note">添付が付かなかったときは <a href="demo.mp4" download="factorio-rng-3-rolls.mp4">添付を保存</a> して、X の投稿画面で付ける。</p>
   <div class="reply"><div class="who">投稿したら、1つ目の返信にリンクを貼る</div><pre id="reply"></pre><div class="btns"><button type="button" class="sub" id="copyReply">返信をコピー</button></div></div>
 </section>
 <script type="application/json" id="post">{"text":"Factorioの「ランダム」は、3回見れば次が全部わかる。\n\n中の乱数は taus88（LFSR 3本のXOR）。出力が内部状態の線形関数なので、32bitの出力を3つ観測してGF(2)の連立方程式を解くと88bitの状態が戻り、以後の値は全部予測できる。\n\nブラウザで動くのを作った。解くのに2ms。","reply":"動かせるページ（ブラウザだけで動く）\n{url}\n元記事: Gegell \"Reversing Factorio's RNG\"\nhttps://gegell.github.io/posts/factorio-rng/\n注: Factorio 2.1 でゲーム内の乱数の使われ方は変わった。生成器は同じ。","media":{"src":"demo.mp4","type":"video/mp4","name":"factorio-rng-3-rolls.mp4"}}</script>

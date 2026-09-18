@@ -250,9 +250,10 @@ async function verify(animated) {
   $('status').innerHTML = all ? '10 個すべて一致。ゲーム側の内部状態（上に明かした）と復元した状態は同じ値になっている。' : '一致しない値がある。'
 }
 async function auto() {
-  reset(); $('auto').disabled = true
+  reset(); $('auto').disabled = true; document.body.dataset.demo = 'running'
   await sleep(500); draw(); await sleep(1100); draw(); await sleep(1100); draw()
   await sleep(1500); await verify(true)
+  document.body.dataset.demo = 'done'   // 録画と検査がここを待つ
 }
 $('draw').addEventListener('click', draw)
 $('reset').addEventListener('click', reset)
