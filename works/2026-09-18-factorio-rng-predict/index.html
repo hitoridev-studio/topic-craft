@@ -4,75 +4,78 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Factorio の乱数は、3回見れば次が全部わかる</title>
-<meta name="description" content="Factorio が使う乱数生成器 taus88 をそのまま JavaScript で動かし、出力を3つ観測しただけで 88bit の内部状態を復元して、先の値を全部当てる。">
+<meta name="description" content="Factorio が使う乱数生成器 taus88 をゲームの実装と同じ式で JavaScript に書き、出力を3つ観測しただけで 88bit の内部状態を復元して、先の値を全部当てる。">
+<meta property="og:title" content="Factorio の乱数は、3回見れば次が全部わかる">
+<meta property="og:description" content="ゲームと同じ taus88 を JavaScript で動かし、出力3つから 88bit の内部状態を GF(2) の連立方程式で復元して先の値を当てる。">
+<meta property="og:image" content="https://hitoridev-studio.github.io/topic-craft/works/2026-09-18-factorio-rng-predict/card.jpg">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+JP:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="../../assets/site.css">
 <style>
-  :root { --bg:#141618; --panel:#1e2124; --panel2:#24282c; --line:#33383d; --ink:#e8e6e1; --mute:#9aa0a6; --orange:#ffa726; --orange2:#e6891c; --green:#7ed957; --red:#ff6b6b; --blue:#6ab0f3; color-scheme: dark; }
-  * { box-sizing: border-box; }
-  html, body { margin: 0; }
-  body { background: var(--bg); color: var(--ink); font-family: "Noto Sans JP", -apple-system, "Hiragino Sans", "Yu Gothic", system-ui, sans-serif; font-size: 16px; line-height: 1.7; -webkit-font-smoothing: antialiased; }
-  code, .mono { font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace; }
-  .wrap { width: min(100%, 44rem); margin: 0 auto; padding-block: 0 56px; padding-inline: 16px; }
-  .top { display: flex; justify-content: space-between; align-items: center; padding: 12px 0; font-size: 13px; color: var(--mute); border-bottom: 1px solid var(--line); }
-  .top a { color: var(--mute); text-decoration: none; }
-  .top a:hover { color: var(--ink); }
-  h1 { font-size: clamp(24px, 6vw, 34px); line-height: 1.25; margin: 20px 0 8px; letter-spacing: -.01em; text-wrap: balance; }
-  h2 { font-size: 19px; margin: 34px 0 8px; }
-  .lead { color: var(--mute); margin: 0 0 16px; font-size: 15.5px; }
-  .meta { font-size: 12.5px; color: var(--mute); display: flex; flex-wrap: wrap; gap: 6px 14px; margin-bottom: 14px; }
-  .meta a { color: var(--blue); }
-  .btns { display: flex; flex-wrap: wrap; gap: 8px; margin: 12px 0; }
-  button { font: inherit; font-size: 15px; font-weight: 700; min-height: 46px; padding: 10px 16px; border-radius: 10px; border: 1px solid var(--line); background: var(--panel2); color: var(--ink); cursor: pointer; }
-  button.primary { background: var(--orange); border-color: var(--orange); color: #1a1200; }
-  button:disabled { opacity: .45; cursor: default; }
-  .panel { background: var(--panel); border: 1px solid var(--line); border-radius: 14px; padding: 14px 16px; margin-top: 12px; }
-  .lbl { font-size: 12px; letter-spacing: .12em; color: var(--mute); text-transform: uppercase; margin-bottom: 8px; }
-  .seeds { font-size: 13px; color: var(--mute); display: flex; flex-wrap: wrap; gap: 4px 14px; }
-  .seeds b { color: var(--ink); font-weight: 500; }
-  ol.obs { list-style: none; margin: 10px 0 0; padding: 0; display: grid; gap: 6px; min-height: 3.2em; }
-  ol.obs li { display: grid; grid-template-columns: 2.4em 1fr auto; gap: 10px; align-items: baseline; font-size: 17px; }
-  ol.obs li .n { color: var(--mute); font-size: 13px; }
-  ol.obs li .hex { color: var(--orange); font-weight: 600; letter-spacing: .04em; }
-  ol.obs li .dec { color: var(--mute); font-size: 12.5px; }
-  ol.obs li.empty { color: var(--mute); font-size: 14px; grid-template-columns: 1fr; }
+  /* このページだけの部品。土台（書体・余白・罫）は assets/site.css */
+  :root { --panel: #141414; --panel-ink: #ececec; --panel-mute: #9a9a9a; --panel-line: #2a2a2a; --panel-wash: #1c1c1c; --orange: #ff9f2e; --green: #73d67a; --red: #ff7b72; }
+  .lead { color: var(--ink-2); font-size: 17px; line-height: 1.75; margin: 0 0 12px; }
+  .btns { display: flex; flex-wrap: wrap; gap: 8px; margin: 22px 0 12px; }
+  .btns { gap: 6px; }
+  .btns button { font: inherit; font-size: 13.5px; font-weight: 600; min-height: 44px; padding: 8px 12px; border-radius: 4px; border: 1px solid var(--line-2); background: var(--bg); color: var(--ink); cursor: pointer; white-space: nowrap; }
+  .btns button.primary { background: var(--ink); border-color: var(--ink); color: var(--bg); }
+  .btns button:disabled { opacity: .4; cursor: default; }
+  .panel { background: var(--panel); color: var(--panel-ink); border-radius: 6px; padding: 18px 18px 16px; margin-top: 10px; }
+  .panel + .panel { margin-top: 8px; }
+  .lbl { font-family: var(--mono); font-size: 11px; letter-spacing: .12em; color: var(--panel-mute); text-transform: uppercase; margin-bottom: 10px; }
+  .seeds { font-family: var(--mono); font-size: 12.5px; color: var(--panel-mute); display: flex; flex-wrap: wrap; gap: 4px 16px; font-variant-numeric: tabular-nums; }
+  .seeds b { color: var(--panel-ink); font-weight: 500; }
+  ol.obs { list-style: none; margin: 12px 0 0; padding: 0; display: grid; gap: 6px; min-height: 3.4em; font-family: var(--mono); font-variant-numeric: tabular-nums; }
+  ol.obs li { display: grid; grid-template-columns: 2.4em 1fr auto; gap: 12px; align-items: baseline; font-size: 17px; }
+  ol.obs li .n { color: var(--panel-mute); font-size: 12px; }
+  ol.obs li .hex { color: var(--orange); font-weight: 500; letter-spacing: .04em; }
+  ol.obs li .dec { color: var(--panel-mute); font-size: 12px; }
+  ol.obs li.empty { color: var(--panel-mute); font-size: 13.5px; grid-template-columns: 1fr; font-family: var(--sans); }
   .cand { display: flex; align-items: baseline; gap: 12px; flex-wrap: wrap; }
-  .cand .big { font-size: 40px; font-weight: 700; line-height: 1; letter-spacing: -.02em; color: var(--ink); }
+  .cand .big { font-family: var(--mono); font-size: 40px; font-weight: 500; line-height: 1; letter-spacing: -.02em; color: var(--panel-ink); }
+  .cand .big sup { font-size: .5em; vertical-align: .6em; }
   .cand .big.one { color: var(--green); }
-  .cand .sub { color: var(--mute); font-size: 13px; }
-  .bar { height: 10px; background: #0e1012; border-radius: 6px; overflow: hidden; margin: 10px 0 4px; }
-  .bar i { display: block; height: 100%; width: 100%; background: linear-gradient(90deg, var(--orange2), var(--orange)); transition: width .5s ease; }
-  .rec { margin-top: 12px; padding-top: 10px; border-top: 1px dashed var(--line); }
-  .rec .ok { color: var(--green); font-weight: 700; }
+  .cand .sub { color: var(--panel-mute); font-size: 13px; }
+  .bar { height: 3px; background: var(--panel-line); border-radius: 2px; overflow: hidden; margin: 12px 0 6px; }
+  .bar i { display: block; height: 100%; width: 100%; background: var(--orange); transition: width .5s ease; }
+  .status { font-size: 13.5px; color: var(--panel-mute); margin-top: 8px; min-height: 1.5em; line-height: 1.7; }
+  .status b { color: var(--green); font-weight: 500; }
+  .rec { margin-top: 14px; padding-top: 12px; border-top: 1px solid var(--panel-line); }
+  .rec .ok { color: var(--green); font-weight: 500; }
   .rec .seeds { margin-top: 6px; }
   .rec .seeds b { color: var(--orange); }
-  .pred { margin-top: 12px; padding-top: 10px; border-top: 1px dashed var(--line); }
-  .pred table { width: 100%; border-collapse: collapse; font-size: 15.5px; }
-  .pred th { text-align: left; font-size: 11.5px; letter-spacing: .1em; color: var(--mute); font-weight: 500; padding: 2px 6px 6px 0; text-transform: uppercase; }
-  .pred td { padding: 3px 6px 3px 0; border-top: 1px solid #2a2e33; }
-  .pred td.hex { color: var(--ink); }
-  .pred td.act { color: var(--mute); }
-  .pred td.mark { text-align: right; width: 2.2em; font-weight: 700; }
+  .pred { margin-top: 14px; padding-top: 12px; border-top: 1px solid var(--panel-line); }
+  .pred table { width: 100%; border-collapse: collapse; font-family: var(--mono); font-size: 15px; font-variant-numeric: tabular-nums; }
+  .pred th { text-align: left; font-size: 11px; letter-spacing: .1em; color: var(--panel-mute); font-weight: 500; padding: 2px 8px 8px 0; text-transform: uppercase; }
+  .pred td { padding: 4px 8px 4px 0; border-top: 1px solid var(--panel-line); }
+  .pred td.n { color: var(--panel-mute); font-size: 12px; }
+  .pred td.hex { color: var(--panel-ink); }
+  .pred td.act { color: var(--panel-mute); }
+  .pred td.mark { text-align: right; width: 2em; font-weight: 500; }
   .pred td.mark.yes { color: var(--green); } .pred td.mark.no { color: var(--red); }
-  .pred tr.match td.act { color: var(--ink); }
-  .status { font-size: 13.5px; color: var(--mute); margin-top: 8px; min-height: 1.5em; }
-  .status b { color: var(--green); }
-  p { margin: 0 0 12px; }
-  pre { background: #0e1012; border: 1px solid var(--line); border-radius: 12px; padding: 12px 14px; font-size: 12.5px; line-height: 1.55; overflow-x: auto; color: #d7dbe0; margin: 8px 0 14px; }
-  .kv { display: grid; grid-template-columns: auto 1fr; gap: 4px 14px; font-size: 14.5px; margin: 8px 0 12px; }
-  .kv b { color: var(--mute); font-weight: 500; }
-  .note { border-left: 3px solid var(--orange2); padding-left: 12px; color: var(--mute); font-size: 14px; margin: 14px 0; }
-  .foot { margin-top: 36px; border-top: 1px solid var(--line); padding-top: 12px; font-size: 12.5px; color: var(--mute); }
-  .foot a { color: var(--blue); }
-  :focus-visible { outline: 2px solid var(--blue); outline-offset: 2px; }
+  .pred tr.match td.act { color: var(--panel-ink); }
+  .pred .btns { margin: 12px 0 0; }
+  .pred .btns button { background: transparent; color: var(--panel-ink); border-color: var(--panel-line); }
+  pre { background: var(--wash); border: 1px solid var(--line); border-radius: 4px; padding: 14px 16px; font-family: var(--mono); font-size: 12.5px; line-height: 1.6; overflow-x: auto; color: var(--ink); margin: 8px 0 18px; }
+  code { font-family: var(--mono); font-size: .92em; }
+  .kv { display: grid; grid-template-columns: 6em 1fr; gap: 6px 16px; font-size: 14.5px; line-height: 1.7; margin: 12px 0 18px; padding: 14px 0; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); }
+  .kv b { font-family: var(--mono); font-weight: 500; font-size: 12px; letter-spacing: .06em; color: var(--ink-3); padding-top: .25em; }
+  .note { color: var(--ink-2); font-size: 14.5px; line-height: 1.75; padding-left: 14px; border-left: 2px solid var(--line-2); margin: 14px 0; }
+  .note p:last-child { margin-bottom: 0; }
+  .foot { margin-top: 56px; }
   @media (prefers-reduced-motion: reduce) { .bar i { transition: none; } }
 </style>
 </head>
 <body>
 <div class="wrap">
-  <div class="top"><a href="../../index.html">← hitoridev studio</a><span>2026-09-18</span></div>
+  <header class="top"><a href="../../index.html">hitoridev studio</a><span class="tag">topic craft</span></header>
+  <p class="meta" style="margin-top:44px"><span>2026-09-18</span><span>デモ</span></p>
 
-  <h1>Factorio の乱数は、<span style="white-space:nowrap">3回見れば</span>次が全部わかる</h1>
+  <h1 style="margin-top:8px">Factorio の乱数は、<span style="white-space:nowrap">3回見れば</span>次が全部わかる</h1>
   <p class="lead">Factorio が使う乱数生成器 taus88 を、ゲームの実装と同じ式で JavaScript に書いた。出力を3つ観測しただけで 88bit の内部状態を復元し、先の値を全部当てる。</p>
-  <div class="meta"><span>元ネタ: <a href="https://gegell.github.io/posts/factorio-rng/">Gegell, Reversing Factorio's RNG</a></span><span>生成器: Boost.Random taus88</span></div>
+  <p class="meta"><span>元ネタ: <a href="https://gegell.github.io/posts/factorio-rng/">Gegell, Reversing Factorio's RNG</a></span><span>生成器: Boost.Random taus88</span></p>
 
   <div class="btns">
     <button type="button" class="primary" id="auto">自動で見せる</button>

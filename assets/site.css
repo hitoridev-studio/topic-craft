@@ -1,49 +1,61 @@
-/* hitoridev studio · topic craft — カタログと投稿ページの見た目。紙色の地に藍とオーカー。単一テーマ（明）で色を明示する */
-:root { --paper:#f7f5f0; --card:#ffffff; --ink:#1b1f27; --ink2:#454b57; --mute:#6f7684; --line:#e2ded5; --navy:#14213d; --ochre:#b8862b; --ochre-soft:#f3e9d3; --blue:#2f5fd6; }
+/*
+ * topic craft の見た目。参照点: ciechanow.ski（IBM Plex Sans・白地・#444 の本文・細い罫・1.6〜1.8 の行送り・作品だけの一覧）、
+ * sizu.me（Inter＋日本語ゴシック・16px/1.7・40〜48rem の読み幅・淡い灰）、distill.pub（550〜700px の読み幅・灰の見出し）。
+ * 方針: 白地・墨色・罫線と余白だけで階層を作る。色の札や角丸のカードを使わない。数字は等幅で桁を揃える。
+ * 書体: IBM Plex Sans JP（和文）・IBM Plex Sans（欧文）・IBM Plex Mono（数字・ラベル）。同じ一族で揃える。
+ */
+:root {
+  --bg: #ffffff; --ink: #1a1a1a; --ink-2: #4a4a4a; --ink-3: #7a7a7a; --line: #e6e6e6; --line-2: #d4d4d4; --wash: #f6f6f5;
+  --sans: "IBM Plex Sans JP", "IBM Plex Sans", -apple-system, "Hiragino Sans", "Noto Sans JP", system-ui, sans-serif;
+  --latin: "IBM Plex Sans", "IBM Plex Sans JP", -apple-system, system-ui, sans-serif;
+  --mono: "IBM Plex Mono", ui-monospace, "SF Mono", Menlo, monospace;
+  --measure: 40rem;
+}
 * { box-sizing: border-box; }
 html, body { margin: 0; }
-body { background: var(--paper); color: var(--ink); font-family: "Noto Sans JP", -apple-system, "Hiragino Sans", "Yu Gothic", system-ui, sans-serif; font-size: 16px; line-height: 1.7; -webkit-font-smoothing: antialiased; }
-a { color: var(--blue); }
-.wrap { width: min(100%, 44rem); margin: 0 auto; padding-block: 0 64px; padding-inline: clamp(16px, 4vw, 24px); }
-.top { background: var(--navy); color: #f4f1ea; }
-.top .wrap { padding-block: 14px 14px; display: flex; align-items: center; justify-content: space-between; gap: 12px; }
-.top a { color: #f4f1ea; text-decoration: none; font-weight: 700; letter-spacing: .02em; }
-.top .tag { font-size: 12px; letter-spacing: .12em; color: #c9a35a; }
-h1 { font-family: "Zen Kaku Gothic New", "Noto Sans JP", sans-serif; font-weight: 900; font-size: clamp(24px, 6vw, 34px); line-height: 1.25; margin: 22px 0 8px; letter-spacing: -.01em; text-wrap: balance; }
-h2 { font-family: "Zen Kaku Gothic New", "Noto Sans JP", sans-serif; font-weight: 700; font-size: 20px; margin: 30px 0 8px; }
-p { margin: 0 0 14px; }
-.lead { font-size: 17.5px; font-weight: 500; border-left: 3px solid var(--ochre); padding-left: 14px; margin: 14px 0 18px; }
-.meta { display: flex; flex-wrap: wrap; gap: 8px 14px; font-size: 13px; color: var(--mute); align-items: center; }
-.chip { display: inline-block; font-size: 11px; letter-spacing: .1em; color: #fff; border-radius: 999px; padding: 2px 9px; }
-.chip.mono { background: var(--navy); } .chip.kiji { background: var(--ochre); }
-.site-title { font-family: "Zen Kaku Gothic New", "Noto Sans JP", sans-serif; font-weight: 900; font-size: 22px; letter-spacing: .02em; margin: 26px 0 4px; color: var(--navy); }
-.list { list-style: none; padding: 0; margin: 18px 0 0; display: flex; flex-direction: column; gap: 12px; }
-.list a { display: grid; grid-template-columns: 1fr 96px; gap: 14px; align-items: center; background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 14px 16px; color: inherit; text-decoration: none; }
-.list .d { font-size: 12px; color: var(--mute); font-variant-numeric: tabular-nums; display: flex; gap: 10px; align-items: center; }
-.list .t { font-weight: 700; font-size: 17px; line-height: 1.35; margin-top: 4px; }
-.list .s { font-size: 14px; color: var(--ink2); margin-top: 4px; }
-.list img { width: 96px; height: 72px; object-fit: cover; object-position: top; border-radius: 8px; border: 1px solid var(--line); background: #e9e6df; }
-.box { background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 16px; }
-.note { font-size: 13px; color: var(--mute); line-height: 1.6; }
-.foot { margin-top: 40px; font-size: 12.5px; color: var(--mute); border-top: 1px solid var(--line); padding-top: 14px; }
-.foot a { color: var(--mute); }
-/* 投稿の下書き */
-.post { margin-top: 36px; border-top: 2px solid var(--navy); padding-top: 18px; }
-.post h2 { margin-top: 0; }
-.post .who { font-size: 13px; color: var(--mute); margin-bottom: 8px; }
-.post textarea { width: 100%; font: inherit; font-size: 16px; line-height: 1.55; color: var(--ink); background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 12px 14px; resize: vertical; min-height: 140px; }
-.post .cnt { font-size: 13px; color: var(--mute); text-align: right; font-variant-numeric: tabular-nums; margin-top: 4px; }
-.post .cnt.over { color: #b03a52; font-weight: 700; }
-.post .media { display: flex; gap: 12px; align-items: center; margin: 10px 0 12px; font-size: 13px; color: var(--mute); }
-.post .media img { width: 120px; height: 68px; object-fit: cover; object-position: top; border-radius: 8px; border: 1px solid var(--line); }
-.btns { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 6px; }
-.btns button { flex: 1 1 160px; font: inherit; font-size: 16px; font-weight: 700; min-height: 48px; border-radius: 12px; border: 0; cursor: pointer; padding: 12px 14px; }
-.btns .go { background: var(--navy); color: #fff; }
-.btns .sub { background: var(--ochre-soft); color: var(--ink); }
-.btns button.done { color: #2e7d52; }
-.post .reply { margin-top: 14px; }
-.post .reply pre { white-space: pre-wrap; font: inherit; font-size: 14.5px; background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 12px 14px; margin: 6px 0 8px; color: var(--ink2); }
-:focus-visible { outline: 2px solid var(--blue); outline-offset: 2px; }
+body { background: var(--bg); color: var(--ink); font-family: var(--sans); font-size: 16px; line-height: 1.8; font-feature-settings: "palt"; -webkit-font-smoothing: antialiased; text-rendering: optimizeLegibility; }
+a { color: inherit; text-decoration: underline; text-decoration-color: var(--line-2); text-underline-offset: .18em; text-decoration-thickness: 1px; }
+a:hover { text-decoration-color: var(--ink); }
+.wrap { width: min(100%, var(--measure)); margin: 0 auto; padding-inline: 20px; }
 
-/* 投稿ページの動画の下見 */
-.post video { width: 100%; max-height: 60vh; background: #000; border-radius: 12px; border: 1px solid var(--line); margin: 6px 0 10px; }
+/* 上部: 屋号だけ。帯は付けない */
+.top { display: flex; justify-content: space-between; align-items: baseline; padding: 22px 0 0; font-family: var(--latin); font-size: 13px; letter-spacing: .01em; }
+.top a { font-weight: 600; text-decoration: none; }
+.top .tag { font-family: var(--mono); font-size: 12px; color: var(--ink-3); letter-spacing: .04em; }
+
+/* 一覧 */
+.site-title { font-family: var(--latin); font-weight: 600; font-size: 15px; letter-spacing: .01em; color: var(--ink-3); margin: 56px 0 28px; padding-bottom: 12px; border-bottom: 1px solid var(--line); }
+.list { list-style: none; margin: 0; padding: 0; }
+.list li { padding: 0 0 36px; margin: 0 0 36px; border-bottom: 1px solid var(--line); }
+.list li:last-child { border-bottom: 0; }
+.list a { display: block; text-decoration: none; }
+.list .thumb { display: block; width: 100%; aspect-ratio: 16 / 9; object-fit: cover; object-position: top; border-radius: 4px; background: var(--wash); border: 1px solid var(--line); margin-bottom: 16px; }
+.list .d { font-family: var(--mono); font-size: 12px; letter-spacing: .06em; color: var(--ink-3); display: flex; gap: 14px; margin-bottom: 6px; }
+.list .t { font-weight: 600; font-size: 20px; line-height: 1.45; letter-spacing: -.005em; margin: 0 0 6px; text-wrap: balance; }
+.list a:hover .t { text-decoration: underline; text-decoration-color: var(--line-2); text-underline-offset: .2em; }
+.list .s { color: var(--ink-2); font-size: 15px; line-height: 1.75; margin: 0; }
+
+/* 見出し・本文 */
+h1 { font-weight: 600; font-size: clamp(26px, 6vw, 34px); line-height: 1.3; letter-spacing: -.012em; margin: 28px 0 12px; text-wrap: balance; }
+h2 { font-weight: 600; font-size: 18px; line-height: 1.5; margin: 48px 0 10px; }
+p { margin: 0 0 16px; }
+.meta { font-family: var(--mono); font-size: 12px; letter-spacing: .06em; color: var(--ink-3); display: flex; flex-wrap: wrap; gap: 6px 16px; align-items: baseline; margin: 0 0 8px; }
+.foot { margin-top: 72px; padding: 16px 0 40px; border-top: 1px solid var(--line); font-family: var(--mono); font-size: 12px; letter-spacing: .04em; color: var(--ink-3); }
+.foot a { color: inherit; }
+
+/* 投稿ページ（本人だけが使う） */
+.post { margin-top: 32px; }
+.post .who { font-size: 13px; color: var(--ink-3); margin-bottom: 8px; }
+.post textarea { width: 100%; font: inherit; font-size: 16px; line-height: 1.7; color: var(--ink); background: var(--bg); border: 1px solid var(--line-2); border-radius: 4px; padding: 12px 14px; resize: vertical; min-height: 150px; }
+.post textarea:focus { outline: none; border-color: var(--ink); }
+.post .cnt { font-family: var(--mono); font-size: 12px; color: var(--ink-3); text-align: right; font-variant-numeric: tabular-nums; margin: 6px 0 14px; }
+.post .cnt.over { color: #b3261e; }
+.post video { width: 100%; max-height: 62vh; background: #000; border-radius: 4px; border: 1px solid var(--line); margin: 0 0 14px; }
+.btns { display: flex; flex-wrap: wrap; gap: 10px; }
+.btns button { flex: 1 1 160px; font: inherit; font-size: 15px; font-weight: 600; min-height: 48px; border-radius: 4px; cursor: pointer; padding: 10px 16px; border: 1px solid var(--ink); background: var(--bg); color: var(--ink); }
+.btns .go { background: var(--ink); color: var(--bg); }
+.btns button.done { color: var(--ink-3); border-color: var(--line-2); }
+.post .note { font-size: 13px; color: var(--ink-3); line-height: 1.7; margin: 10px 0 0; }
+.post .reply { margin-top: 28px; }
+.post .reply pre { white-space: pre-wrap; font: inherit; font-size: 14.5px; line-height: 1.7; background: var(--wash); border-radius: 4px; padding: 12px 14px; margin: 6px 0 10px; color: var(--ink-2); overflow-wrap: anywhere; }
+:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
