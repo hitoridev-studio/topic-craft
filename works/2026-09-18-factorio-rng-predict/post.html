@@ -8,13 +8,13 @@
 <link rel="stylesheet" href="../../assets/site.css">
 </head>
 <body>
-<header class="top"><div class="wrap"><a href="../../index.html">hitoridev studio · topic craft</a><span class="tag">毎朝の技術動向から</span></div></header>
+<header class="top"><div class="wrap"><a href="../../index.html">hitoridev studio</a><span class="tag">topic craft</span></div></header>
 <main class="wrap">
 
-<p class="meta"><span class="chip mono">もの</span><span>2026-09-18</span><a href="index.html">成果物のページ</a></p>
+<p class="meta"><span class="chip mono">デモ</span><span>2026-09-18</span><a href="index.html">公開ページ</a></p>
 <h1>Factorio の乱数は、3回見れば次が全部わかる</h1>
 <section class="post" id="postsec">
-  <h2>この成果物を X に出す</h2>
+  <h2>X に出す</h2>
   <div class="who">投稿の下書き。直してから押してよい。</div>
   <textarea id="draft" aria-label="投稿の本文"></textarea>
   <div class="cnt" id="cnt"></div>
@@ -26,7 +26,7 @@
 <script type="application/json" id="post">{"text":"Factorioの「ランダム」は、3回見れば次が全部わかる。\n\n中の乱数は taus88（LFSR 3本のXOR）。出力が内部状態の線形関数なので、32bitの出力を3つ観測してGF(2)の連立方程式を解くと88bitの状態が戻り、以後の値は全部予測できる。\n\nブラウザで動くのを作った。解くのに2ms。","reply":"動かせるページ（ブラウザだけで動く）\n{url}\n元記事: Gegell \"Reversing Factorio's RNG\"\nhttps://gegell.github.io/posts/factorio-rng/\n注: Factorio 2.1 でゲーム内の乱数の使われ方は変わった。生成器は同じ。","media":{"src":"demo.mp4","type":"video/mp4","name":"factorio-rng-3-rolls.mp4"}}</script>
 <script src="../../assets/post.js"></script>
 
-<p class="foot">毎朝の技術動向から1本を選び、その日のうちに作って公開する。動くものは index.html、読んだものは記事。コードは MIT。数字と主張は出典の範囲だけ書く。</p>
+<p class="foot">© 2026 hitoridev studio · <a href="https://github.com/hitoridev-studio/topic-craft">GitHub</a> · MIT License</p>
 </main>
 </body>
 </html>
