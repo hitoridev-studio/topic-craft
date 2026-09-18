@@ -1,0 +1,49 @@
+/* hitoridev studio · topic craft — カタログと投稿ページの見た目。紙色の地に藍とオーカー。単一テーマ（明）で色を明示する */
+:root { --paper:#f7f5f0; --card:#ffffff; --ink:#1b1f27; --ink2:#454b57; --mute:#6f7684; --line:#e2ded5; --navy:#14213d; --ochre:#b8862b; --ochre-soft:#f3e9d3; --blue:#2f5fd6; }
+* { box-sizing: border-box; }
+html, body { margin: 0; }
+body { background: var(--paper); color: var(--ink); font-family: "Noto Sans JP", -apple-system, "Hiragino Sans", "Yu Gothic", system-ui, sans-serif; font-size: 16px; line-height: 1.7; -webkit-font-smoothing: antialiased; }
+a { color: var(--blue); }
+.wrap { width: min(100%, 44rem); margin: 0 auto; padding-block: 0 64px; padding-inline: clamp(16px, 4vw, 24px); }
+.top { background: var(--navy); color: #f4f1ea; }
+.top .wrap { padding-block: 14px 14px; display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.top a { color: #f4f1ea; text-decoration: none; font-weight: 700; letter-spacing: .02em; }
+.top .tag { font-size: 12px; letter-spacing: .12em; color: #c9a35a; }
+h1 { font-family: "Zen Kaku Gothic New", "Noto Sans JP", sans-serif; font-weight: 900; font-size: clamp(24px, 6vw, 34px); line-height: 1.25; margin: 22px 0 8px; letter-spacing: -.01em; text-wrap: balance; }
+h2 { font-family: "Zen Kaku Gothic New", "Noto Sans JP", sans-serif; font-weight: 700; font-size: 20px; margin: 30px 0 8px; }
+p { margin: 0 0 14px; }
+.lead { font-size: 17.5px; font-weight: 500; border-left: 3px solid var(--ochre); padding-left: 14px; margin: 14px 0 18px; }
+.meta { display: flex; flex-wrap: wrap; gap: 8px 14px; font-size: 13px; color: var(--mute); align-items: center; }
+.chip { display: inline-block; font-size: 11px; letter-spacing: .1em; color: #fff; border-radius: 999px; padding: 2px 9px; }
+.chip.mono { background: var(--navy); } .chip.kiji { background: var(--ochre); }
+.hero { margin: 26px 0 6px; }
+.hero p { color: var(--ink2); font-size: 15px; }
+.list { list-style: none; padding: 0; margin: 18px 0 0; display: flex; flex-direction: column; gap: 12px; }
+.list a { display: grid; grid-template-columns: 1fr 96px; gap: 14px; align-items: center; background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 14px 16px; color: inherit; text-decoration: none; }
+.list .d { font-size: 12px; color: var(--mute); font-variant-numeric: tabular-nums; display: flex; gap: 10px; align-items: center; }
+.list .t { font-weight: 700; font-size: 17px; line-height: 1.35; margin-top: 4px; }
+.list .s { font-size: 14px; color: var(--ink2); margin-top: 4px; }
+.list img { width: 96px; height: 72px; object-fit: cover; object-position: top; border-radius: 8px; border: 1px solid var(--line); background: #e9e6df; }
+.box { background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 16px; }
+.note { font-size: 13px; color: var(--mute); line-height: 1.6; }
+.foot { margin-top: 40px; font-size: 12.5px; color: var(--mute); border-top: 1px solid var(--line); padding-top: 14px; }
+/* 投稿の下書き */
+.post { margin-top: 36px; border-top: 2px solid var(--navy); padding-top: 18px; }
+.post h2 { margin-top: 0; }
+.post .who { font-size: 13px; color: var(--mute); margin-bottom: 8px; }
+.post textarea { width: 100%; font: inherit; font-size: 16px; line-height: 1.55; color: var(--ink); background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 12px 14px; resize: vertical; min-height: 140px; }
+.post .cnt { font-size: 13px; color: var(--mute); text-align: right; font-variant-numeric: tabular-nums; margin-top: 4px; }
+.post .cnt.over { color: #b03a52; font-weight: 700; }
+.post .media { display: flex; gap: 12px; align-items: center; margin: 10px 0 12px; font-size: 13px; color: var(--mute); }
+.post .media img { width: 120px; height: 68px; object-fit: cover; object-position: top; border-radius: 8px; border: 1px solid var(--line); }
+.btns { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 6px; }
+.btns button { flex: 1 1 160px; font: inherit; font-size: 16px; font-weight: 700; min-height: 48px; border-radius: 12px; border: 0; cursor: pointer; padding: 12px 14px; }
+.btns .go { background: var(--navy); color: #fff; }
+.btns .sub { background: var(--ochre-soft); color: var(--ink); }
+.btns button.done { color: #2e7d52; }
+.post .reply { margin-top: 14px; }
+.post .reply pre { white-space: pre-wrap; font: inherit; font-size: 14.5px; background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 12px 14px; margin: 6px 0 8px; color: var(--ink2); }
+:focus-visible { outline: 2px solid var(--blue); outline-offset: 2px; }
+
+/* 投稿ページの動画の下見 */
+.post video { width: 100%; max-height: 60vh; background: #000; border-radius: 12px; border: 1px solid var(--line); margin: 6px 0 10px; }

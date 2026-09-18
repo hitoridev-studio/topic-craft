@@ -1,0 +1,11 @@
+{
+  "kind": "もの",
+  "date": "2026-09-18",
+  "title": "Factorio の乱数は、3回見れば次が全部わかる",
+  "summary": "ゲームと同じ taus88 を JavaScript で動かし、出力3つから 88bit の内部状態を GF(2) の連立方程式で復元して先の値を当てる",
+  "poster": "demo-poster.jpg",
+  "source": { "label": "Gegell, Reversing Factorio's RNG", "url": "https://gegell.github.io/posts/factorio-rng/" },
+  "text": "Factorioの「ランダム」は、3回見れば次が全部わかる。\n\n中の乱数は taus88（LFSR 3本のXOR）。出力が内部状態の線形関数なので、32bitの出力を3つ観測してGF(2)の連立方程式を解くと88bitの状態が戻り、以後の値は全部予測できる。\n\nブラウザで動くのを作った。解くのに2ms。",
+  "reply": "動かせるページ（ブラウザだけで動く）\n{url}\n元記事: Gegell \"Reversing Factorio's RNG\"\nhttps://gegell.github.io/posts/factorio-rng/\n注: Factorio 2.1 でゲーム内の乱数の使われ方は変わった。生成器は同じ。",
+  "media": { "src": "demo.mp4", "type": "video/mp4", "name": "factorio-rng-3-rolls.mp4" }
+}

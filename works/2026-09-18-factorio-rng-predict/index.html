@@ -1,0 +1,262 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Factorio の乱数は、3回見れば次が全部わかる</title>
+<meta name="description" content="Factorio が使う乱数生成器 taus88 をそのまま JavaScript で動かし、出力を3つ観測しただけで 88bit の内部状態を復元して、先の値を全部当てる。">
+<style>
+  :root { --bg:#141618; --panel:#1e2124; --panel2:#24282c; --line:#33383d; --ink:#e8e6e1; --mute:#9aa0a6; --orange:#ffa726; --orange2:#e6891c; --green:#7ed957; --red:#ff6b6b; --blue:#6ab0f3; color-scheme: dark; }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; }
+  body { background: var(--bg); color: var(--ink); font-family: "Noto Sans JP", -apple-system, "Hiragino Sans", "Yu Gothic", system-ui, sans-serif; font-size: 16px; line-height: 1.7; -webkit-font-smoothing: antialiased; }
+  code, .mono { font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace; }
+  .wrap { width: min(100%, 44rem); margin: 0 auto; padding-block: 0 56px; padding-inline: 16px; }
+  .top { display: flex; justify-content: space-between; align-items: center; padding: 12px 0; font-size: 13px; color: var(--mute); border-bottom: 1px solid var(--line); }
+  .top a { color: var(--mute); text-decoration: none; }
+  .top a:hover { color: var(--ink); }
+  h1 { font-size: clamp(24px, 6vw, 34px); line-height: 1.25; margin: 20px 0 8px; letter-spacing: -.01em; text-wrap: balance; }
+  h2 { font-size: 19px; margin: 34px 0 8px; }
+  .lead { color: var(--mute); margin: 0 0 16px; font-size: 15.5px; }
+  .meta { font-size: 12.5px; color: var(--mute); display: flex; flex-wrap: wrap; gap: 6px 14px; margin-bottom: 14px; }
+  .meta a { color: var(--blue); }
+  .btns { display: flex; flex-wrap: wrap; gap: 8px; margin: 12px 0; }
+  button { font: inherit; font-size: 15px; font-weight: 700; min-height: 46px; padding: 10px 16px; border-radius: 10px; border: 1px solid var(--line); background: var(--panel2); color: var(--ink); cursor: pointer; }
+  button.primary { background: var(--orange); border-color: var(--orange); color: #1a1200; }
+  button:disabled { opacity: .45; cursor: default; }
+  .panel { background: var(--panel); border: 1px solid var(--line); border-radius: 14px; padding: 14px 16px; margin-top: 12px; }
+  .lbl { font-size: 12px; letter-spacing: .12em; color: var(--mute); text-transform: uppercase; margin-bottom: 8px; }
+  .seeds { font-size: 13px; color: var(--mute); display: flex; flex-wrap: wrap; gap: 4px 14px; }
+  .seeds b { color: var(--ink); font-weight: 500; }
+  ol.obs { list-style: none; margin: 10px 0 0; padding: 0; display: grid; gap: 6px; min-height: 3.2em; }
+  ol.obs li { display: grid; grid-template-columns: 2.4em 1fr auto; gap: 10px; align-items: baseline; font-size: 17px; }
+  ol.obs li .n { color: var(--mute); font-size: 13px; }
+  ol.obs li .hex { color: var(--orange); font-weight: 600; letter-spacing: .04em; }
+  ol.obs li .dec { color: var(--mute); font-size: 12.5px; }
+  ol.obs li.empty { color: var(--mute); font-size: 14px; grid-template-columns: 1fr; }
+  .cand { display: flex; align-items: baseline; gap: 12px; flex-wrap: wrap; }
+  .cand .big { font-size: 40px; font-weight: 700; line-height: 1; letter-spacing: -.02em; color: var(--ink); }
+  .cand .big.one { color: var(--green); }
+  .cand .sub { color: var(--mute); font-size: 13px; }
+  .bar { height: 10px; background: #0e1012; border-radius: 6px; overflow: hidden; margin: 10px 0 4px; }
+  .bar i { display: block; height: 100%; width: 100%; background: linear-gradient(90deg, var(--orange2), var(--orange)); transition: width .5s ease; }
+  .rec { margin-top: 12px; padding-top: 10px; border-top: 1px dashed var(--line); }
+  .rec .ok { color: var(--green); font-weight: 700; }
+  .rec .seeds { margin-top: 6px; }
+  .rec .seeds b { color: var(--orange); }
+  .pred { margin-top: 12px; padding-top: 10px; border-top: 1px dashed var(--line); }
+  .pred table { width: 100%; border-collapse: collapse; font-size: 15.5px; }
+  .pred th { text-align: left; font-size: 11.5px; letter-spacing: .1em; color: var(--mute); font-weight: 500; padding: 2px 6px 6px 0; text-transform: uppercase; }
+  .pred td { padding: 3px 6px 3px 0; border-top: 1px solid #2a2e33; }
+  .pred td.hex { color: var(--ink); }
+  .pred td.act { color: var(--mute); }
+  .pred td.mark { text-align: right; width: 2.2em; font-weight: 700; }
+  .pred td.mark.yes { color: var(--green); } .pred td.mark.no { color: var(--red); }
+  .pred tr.match td.act { color: var(--ink); }
+  .status { font-size: 13.5px; color: var(--mute); margin-top: 8px; min-height: 1.5em; }
+  .status b { color: var(--green); }
+  p { margin: 0 0 12px; }
+  pre { background: #0e1012; border: 1px solid var(--line); border-radius: 12px; padding: 12px 14px; font-size: 12.5px; line-height: 1.55; overflow-x: auto; color: #d7dbe0; margin: 8px 0 14px; }
+  .kv { display: grid; grid-template-columns: auto 1fr; gap: 4px 14px; font-size: 14.5px; margin: 8px 0 12px; }
+  .kv b { color: var(--mute); font-weight: 500; }
+  .note { border-left: 3px solid var(--orange2); padding-left: 12px; color: var(--mute); font-size: 14px; margin: 14px 0; }
+  .foot { margin-top: 36px; border-top: 1px solid var(--line); padding-top: 12px; font-size: 12.5px; color: var(--mute); }
+  .foot a { color: var(--blue); }
+  :focus-visible { outline: 2px solid var(--blue); outline-offset: 2px; }
+  @media (prefers-reduced-motion: reduce) { .bar i { transition: none; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="top"><a href="../../index.html">← hitoridev studio · topic craft</a><span>2026-09-18</span></div>
+
+  <h1>Factorio の乱数は、<span style="white-space:nowrap">3回見れば</span>次が全部わかる</h1>
+  <p class="lead">Factorio が使う乱数生成器 taus88 を、ゲームの実装と同じ式で JavaScript に書いた。出力を3つ観測しただけで 88bit の内部状態を復元し、先の値を全部当てる。</p>
+  <div class="meta"><span>元ネタ: <a href="https://gegell.github.io/posts/factorio-rng/">Gegell, Reversing Factorio's RNG</a></span><span>生成器: Boost.Random taus88</span></div>
+
+  <div class="btns">
+    <button type="button" class="primary" id="auto">自動で見せる</button>
+    <button type="button" id="draw">乱数を1つ引く</button>
+    <button type="button" id="reset">新しいシード</button>
+  </div>
+
+  <div class="panel">
+    <div class="lbl">ゲーム側（内部状態は見えない）</div>
+    <div class="seeds"><span>seed1 <b class="mono" id="g1">••••••••</b></span><span>seed2 <b class="mono" id="g2">••••••••</b></span><span>seed3 <b class="mono" id="g3">••••••••</b></span></div>
+    <ol class="obs mono" id="obs"><li class="empty">まだ何も引いていない</li></ol>
+  </div>
+
+  <div class="panel">
+    <div class="lbl">こちら側（観測だけから復元）</div>
+    <div class="cand"><span class="big mono" id="cand">2<sup>88</sup></span><span class="sub">通りの内部状態が候補</span></div>
+    <div class="bar"><i id="bar"></i></div>
+    <div class="status" id="status">32bit の出力を1つ見るたびに、候補は 2<sup>32</sup> 分の1になる。</div>
+    <div class="rec" id="rec" hidden>
+      <div class="ok">状態を復元した <span class="mono" id="solveInfo"></span></div>
+      <div class="seeds"><span>seed1 <b class="mono" id="r1"></b></span><span>seed2 <b class="mono" id="r2"></b></span><span>seed3 <b class="mono" id="r3"></b></span></div>
+    </div>
+    <div class="pred" id="pred" hidden>
+      <table class="mono">
+        <thead><tr><th>#</th><th>予測</th><th>実際</th><th></th></tr></thead>
+        <tbody id="predBody"></tbody>
+      </table>
+      <div class="btns"><button type="button" id="verify">答え合わせ（ゲーム側で10回引く）</button></div>
+    </div>
+  </div>
+
+  <h2>仕組み</h2>
+  <p>Factorio の <code>RandomGenerator::getInt()</code> は、3本の線形帰還シフトレジスタ（LFSR）を独立に進めて XOR したものを返す。Boost.Random の <code>taus88</code> と同じ生成器で、元開発者がフォーラムでそう答えている（元記事が 2014 年の投稿を引き、逆コンパイルで確かめている）。このページの実装は、元記事が示した逆コンパイル形と Boost の定義形の両方を書き、ランダムな状態 2,000 個 × 10 ステップで全ビットが一致することをテストしてから使っている。</p>
+<pre class="mono">// Factorio の getInt()（逆コンパイル形を JavaScript に写した）
+a = (((a &lt;&lt; 12) ^ (a &gt;&gt;&gt; 6)) &amp; 0x1fff) ^ (a &gt;&gt;&gt; 19) ^ (a &lt;&lt; 12)
+b = (((b &lt;&lt; 4)  ^ (b &gt;&gt;&gt; 23)) &amp; 0x7f)   ^ (b &gt;&gt;&gt; 25) ^ (b &lt;&lt; 4)
+c = (((c &lt;&lt; 17) ^ (c &gt;&gt;&gt; 8)) &amp; 0x1fffff) ^ (c &gt;&gt;&gt; 11) ^ (c &lt;&lt; 17)
+return a ^ b ^ c</pre>
+  <p>シフトと XOR と定数マスクしか使っていないので、出力の各ビットは内部状態のビットの <strong>GF(2) 上の線形結合</strong> になる。3本のレジスタは 31・29・28 bit（合計 88 bit）しか効いておらず、下位の 1・3・4 bit は1回進めると消える。だから 32bit の出力を3つ（96 本の式）観測すれば、88 個の未知数が全部決まる。</p>
+  <div class="kv">
+    <b>未知数</b><span>88 bit（seed1 の上位 31 bit、seed2 の上位 29 bit、seed3 の上位 28 bit）</span>
+    <b>式</b><span>観測1つにつき 32 本。3つで 96 本、階数 88</span>
+    <b>解き方</b><span>基底ベクトル e<sub>i</sub> を入れて3回進めた出力を集めると行列の第 i 列になる。あとは GF(2) のガウスの消去法。96×96 のビット行列で 1 ms 未満</span>
+    <b>候補の数</b><span>観測 0 回 2<sup>88</sup> → 1 回 2<sup>56</sup> → 2 回 2<sup>24</sup> → 3 回で 1 通り</span>
+  </div>
+  <p>復元した状態からは、ゲーム側と同じ式を回すだけで、以後の出力が順に出る。ゲームが乱数を使う場面（クラフトの品質、ウラン処理の当たり、掘削のおまけ）は、この出力を閾値と比べているだけなので、出力が分かれば結果も分かる。</p>
+
+  <h2>注意</h2>
+  <div class="note">
+    <p>このページは「32bit の出力がそのまま3つ見える」前提で復元している。ゲームの中では出力そのものは見えず、元記事はレシピの結果（出たか、出なかったか）から上位ビットを少しずつ集めて 88 回分の観測で復元し、その計算をゲーム内の回路（コンビネータ）で組んでいる。そこが元記事の本題で、このページはその土台の数学を動かして見せるもの。</p>
+    <p>Factorio 2.1 では乱数の使われ方が変わり、元記事のゲーム内の仕掛けは動かなくなった。生成器そのものは変わっていないので、このページの復元はそのまま成り立つ。</p>
+  </div>
+
+  <p class="foot">出典: <a href="https://gegell.github.io/posts/factorio-rng/">Reversing Factorio's RNG（Gegell, 2026-08-22）</a>。taus88 の定義は Boost.Random。このページのコードは MIT。<a href="../../index.html">hitoridev studio · topic craft</a></p>
+</div>
+
+<script>
+// ---------- 生成器：Factorio の getInt()（逆コンパイル形） ----------
+function step(s) {
+  let [a, b, c] = s
+  a = ((((a << 12) ^ (a >>> 6)) & 0x1fff) ^ (a >>> 19) ^ (a << 12)) >>> 0
+  b = ((((b << 4) ^ (b >>> 23)) & 0x7f) ^ (b >>> 25) ^ (b << 4)) >>> 0
+  c = ((((c << 17) ^ (c >>> 8)) & 0x1fffff) ^ (c >>> 11) ^ (c << 17)) >>> 0
+  return [a, b, c]
+}
+const out = (s) => (s[0] ^ s[1] ^ s[2]) >>> 0
+
+// ---------- 復元：GF(2) の連立方程式 ----------
+// 未知数 96（seed1..3 × 32 bit）。出力は状態の線形関数（定数項なし）なので、
+// 基底 e_i を k 回進めた出力が行列の第 i 列になる。行は BigInt のビット列で持つ。
+const SYSTEMS = new Map()
+function buildSystem(k) {
+  if (SYSTEMS.has(k)) return SYSTEMS.get(k)
+  const cols = []
+  for (let i = 0; i < 96; i++) {
+    let s = [0, 0, 0]; s[i >> 5] = (1 << (i & 31)) >>> 0
+    const o = []; for (let t = 0; t < k; t++) { s = step(s); o.push(out(s)) }
+    cols.push(o)
+  }
+  const rows = []
+  for (let t = 0; t < k; t++) for (let bit = 0; bit < 32; bit++) {
+    let m = 0n
+    for (let i = 0; i < 96; i++) if ((cols[i][t] >>> bit) & 1) m |= 1n << BigInt(i)
+    rows.push(m)
+  }
+  SYSTEMS.set(k, rows); return rows
+}
+function solve(observed) {
+  const k = observed.length
+  const rows = buildSystem(k).map((m, r) => ({ m, y: (observed[r >> 5] >>> (r & 31)) & 1 }))
+  const pivots = []; let rank = 0
+  for (let col = 0; col < 96 && rank < rows.length; col++) {
+    const bit = 1n << BigInt(col); let p = -1
+    for (let r = rank; r < rows.length; r++) if (rows[r].m & bit) { p = r; break }
+    if (p < 0) continue
+    ;[rows[rank], rows[p]] = [rows[p], rows[rank]]
+    for (let r = 0; r < rows.length; r++) if (r !== rank && (rows[r].m & bit)) { rows[r].m ^= rows[rank].m; rows[r].y ^= rows[rank].y }
+    pivots.push(col); rank++
+  }
+  for (let r = rank; r < rows.length; r++) if (rows[r].m === 0n && rows[r].y) return { ok: false, rank }
+  const x = [0, 0, 0]
+  for (let r = 0; r < rank; r++) if (rows[r].y) { const c = pivots[r]; x[c >> 5] = (x[c >> 5] | (1 << (c & 31))) >>> 0 }
+  return { ok: true, rank, state: x }
+}
+
+// ---------- 画面 ----------
+const $ = (id) => document.getElementById(id)
+const hex = (v) => '0x' + v.toString(16).toUpperCase().padStart(8, '0')
+const rnd32 = () => { const a = new Uint32Array(1); crypto.getRandomValues(a); return a[0] }
+let game, gameSnap, observed, recovered, predictions, actuals, timers = []
+const sleep = (ms) => new Promise((r) => { const t = setTimeout(r, ms); timers.push(t) })
+
+function reset() {
+  for (const t of timers) clearTimeout(t); timers = []
+  game = [rnd32(), rnd32(), rnd32()]; gameSnap = null; observed = []; recovered = null; predictions = []; actuals = []
+  for (const id of ['g1', 'g2', 'g3']) $(id).textContent = '••••••••'
+  $('obs').innerHTML = '<li class="empty">まだ何も引いていない</li>'
+  $('rec').hidden = true; $('pred').hidden = true; $('predBody').innerHTML = ''
+  $('draw').disabled = false; $('auto').disabled = false; $('verify').disabled = false
+  updateCand()
+}
+function updateCand() {
+  const n = observed.length
+  const free = Math.max(88 - 32 * n, 0)
+  const big = $('cand')
+  big.innerHTML = free > 0 ? `2<sup>${free}</sup>` : '1'
+  big.classList.toggle('one', free === 0)
+  $('bar').style.width = (free / 88 * 100) + '%'
+  $('status').innerHTML = n === 0 ? '32bit の出力を1つ見るたびに、候補は 2<sup>32</sup> 分の1になる。'
+    : free > 0 ? `${n} つ観測。まだ 2<sup>${free}</sup> 通りあるので決まらない。`
+    : `3つ観測。連立方程式の階数が 88 に達し、内部状態が <b>1通り</b>に決まった。`
+}
+function draw() {
+  if (observed.length >= 3) return
+  game = step(game); const v = out(game); observed.push(v)
+  if (observed.length === 1) $('obs').innerHTML = ''
+  const li = document.createElement('li')
+  li.innerHTML = `<span class="n">#${observed.length}</span><span class="hex">${hex(v)}</span><span class="dec">${v.toLocaleString('en-US')}</span>`
+  $('obs').append(li)
+  updateCand()
+  if (observed.length === 3) { gameSnap = game.slice(); $('draw').disabled = true; recover() }
+}
+function recover() {
+  const t0 = performance.now(); const r = solve(observed); const ms = performance.now() - t0
+  if (!r.ok) { $('status').textContent = '矛盾する観測。復元できない。'; return }
+  // 解は観測を始める前の状態。観測した3回ぶん進めると、ゲーム側の今の状態と同じになる
+  let s = r.state
+  for (let t = 0; t < observed.length; t++) s = step(s)
+  recovered = s
+  $('solveInfo').textContent = `（階数 ${r.rank}/88・${ms.toFixed(2)} ms）`
+  $('r1').textContent = hex(recovered[0]); $('r2').textContent = hex(recovered[1]); $('r3').textContent = hex(recovered[2])
+  $('rec').hidden = false
+  // 復元した状態から次の 10 個を予測する
+  predictions = []
+  for (let i = 0; i < 10; i++) { s = step(s); predictions.push(out(s)) }
+  $('predBody').innerHTML = predictions.map((v, i) => `<tr id="p${i}"><td class="n">${i + 4}</td><td class="hex">${hex(v)}</td><td class="act">—</td><td class="mark"></td></tr>`).join('')
+  $('pred').hidden = false
+}
+async function verify(animated) {
+  if (!recovered || actuals.length) return
+  $('verify').disabled = true
+  for (let i = 0; i < 10; i++) {
+    game = step(game); const v = out(game); actuals.push(v)
+    const tr = $('p' + i); tr.querySelector('.act').textContent = hex(v)
+    const m = tr.querySelector('.mark'); const ok = v === predictions[i]
+    m.textContent = ok ? '✓' : '✗'; m.classList.add(ok ? 'yes' : 'no'); if (ok) tr.classList.add('match')
+    if (animated) await sleep(220)
+  }
+  // ゲーム側の内部状態（3回引いた時点）を明かす。復元した状態と同じ値になる
+  for (const [id, i] of [['g1', 0], ['g2', 1], ['g3', 2]]) $(id).textContent = hex(gameSnap[i])
+  const all = actuals.every((v, i) => v === predictions[i])
+  $('status').innerHTML = all ? '10 個すべて一致。ゲーム側の内部状態（上に明かした）と復元した状態は同じ値になっている。' : '一致しない値がある。'
+}
+async function auto() {
+  reset(); $('auto').disabled = true
+  await sleep(500); draw(); await sleep(1100); draw(); await sleep(1100); draw()
+  await sleep(1500); await verify(true)
+}
+$('draw').addEventListener('click', draw)
+$('reset').addEventListener('click', reset)
+$('auto').addEventListener('click', auto)
+$('verify').addEventListener('click', () => verify(true))
+reset()
+if (new URLSearchParams(location.search).get('auto') === '1') setTimeout(auto, 400)
+</script>
+</body>
+</html>
