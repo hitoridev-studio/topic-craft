@@ -11,18 +11,18 @@
 <meta name="twitter:card" content="summary_large_image">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+JP:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+JP:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&family=Zen+Maru+Gothic:wght@500;700&display=swap">
 <link rel="stylesheet" href="../../assets/site.css">
 <style>
   /* このページだけの部品。土台（書体・余白・罫）は assets/site.css */
-  :root { --panel: #141414; --panel-ink: #ececec; --panel-mute: #9a9a9a; --panel-line: #2a2a2a; --panel-wash: #1c1c1c; --orange: #ff9f2e; --green: #73d67a; --red: #ff7b72; }
+  :root { --panel: #f5f6fa; --panel-ink: #3b3f4a; --panel-mute: #9a9ea9; --panel-line: #e4e6ee; --accent: #4a7fd4; --accent-2: #c99a24; --yes: #4a7fd4; --no: #e08a9b; --hit: #e08a9b; }
   .lead { color: var(--ink-2); font-size: 17px; line-height: 1.75; margin: 0 0 12px; }
   .btns { display: flex; flex-wrap: wrap; gap: 8px; margin: 22px 0 12px; }
   .btns { gap: 6px; }
-  .btns button { font: inherit; font-size: 13.5px; font-weight: 600; min-height: 44px; padding: 8px 12px; border-radius: 4px; border: 1px solid var(--line-2); background: var(--bg); color: var(--ink); cursor: pointer; white-space: nowrap; }
-  .btns button.primary { background: var(--ink); border-color: var(--ink); color: var(--bg); }
+  .btns button { font: inherit; font-size: 13.5px; font-weight: 600; min-height: 44px; padding: 8px 14px; border-radius: 999px; border: 1px solid var(--line-2); background: var(--bg); color: var(--ink); cursor: pointer; white-space: nowrap; }
+  .btns button.primary { background: var(--blue); border-color: var(--blue); color: #fff; }
   .btns button:disabled { opacity: .4; cursor: default; }
-  .panel { background: var(--panel); color: var(--panel-ink); border-radius: 6px; padding: 18px 18px 16px; margin-top: 10px; }
+  .panel { background: var(--panel); color: var(--panel-ink); border: 1px solid var(--panel-line); border-radius: 12px; padding: 18px 18px 16px; margin-top: 10px; }
   .panel + .panel { margin-top: 8px; }
   .lbl { font-family: var(--mono); font-size: 11px; letter-spacing: .12em; color: var(--panel-mute); text-transform: uppercase; margin-bottom: 10px; }
   .seeds { font-family: var(--mono); font-size: 12.5px; color: var(--panel-mute); display: flex; flex-wrap: wrap; gap: 4px 16px; font-variant-numeric: tabular-nums; }
@@ -30,22 +30,22 @@
   ol.obs { list-style: none; margin: 12px 0 0; padding: 0; display: grid; gap: 6px; min-height: 3.4em; font-family: var(--mono); font-variant-numeric: tabular-nums; }
   ol.obs li { display: grid; grid-template-columns: 2.4em 1fr auto; gap: 12px; align-items: baseline; font-size: 17px; }
   ol.obs li .n { color: var(--panel-mute); font-size: 12px; }
-  ol.obs li .hex { color: var(--orange); font-weight: 500; letter-spacing: .04em; }
+  ol.obs li .hex { color: var(--accent); font-weight: 500; letter-spacing: .04em; }
   ol.obs li .dec { color: var(--panel-mute); font-size: 12px; }
   ol.obs li.empty { color: var(--panel-mute); font-size: 13.5px; grid-template-columns: 1fr; font-family: var(--sans); }
   .cand { display: flex; align-items: baseline; gap: 12px; flex-wrap: wrap; }
   .cand .big { font-family: var(--mono); font-size: 40px; font-weight: 500; line-height: 1; letter-spacing: -.02em; color: var(--panel-ink); }
   .cand .big sup { font-size: .5em; vertical-align: .6em; }
-  .cand .big.one { color: var(--green); }
+  .cand .big.one { color: var(--hit); }
   .cand .sub { color: var(--panel-mute); font-size: 13px; }
-  .bar { height: 3px; background: var(--panel-line); border-radius: 2px; overflow: hidden; margin: 12px 0 6px; }
-  .bar i { display: block; height: 100%; width: 100%; background: var(--orange); transition: width .5s ease; }
+  .bar { height: 6px; background: #e4e6ee; border-radius: 3px; overflow: hidden; margin: 12px 0 6px; }
+  .bar i { display: block; height: 100%; width: 100%; background: linear-gradient(90deg, #f6b8c1, #f2c14e); transition: width .5s ease; }
   .status { font-size: 13.5px; color: var(--panel-mute); margin-top: 8px; min-height: 1.5em; line-height: 1.7; }
-  .status b { color: var(--green); font-weight: 500; }
+  .status b { color: var(--hit); font-weight: 600; }
   .rec { margin-top: 14px; padding-top: 12px; border-top: 1px solid var(--panel-line); }
-  .rec .ok { color: var(--green); font-weight: 500; }
+  .rec .ok { color: var(--accent); font-weight: 600; }
   .rec .seeds { margin-top: 6px; }
-  .rec .seeds b { color: var(--orange); }
+  .rec .seeds b { color: var(--accent-2); }
   .pred { margin-top: 14px; padding-top: 12px; border-top: 1px solid var(--panel-line); }
   .pred table { width: 100%; border-collapse: collapse; font-family: var(--mono); font-size: 15px; font-variant-numeric: tabular-nums; }
   .pred th { text-align: left; font-size: 11px; letter-spacing: .1em; color: var(--panel-mute); font-weight: 500; padding: 2px 8px 8px 0; text-transform: uppercase; }
@@ -54,15 +54,15 @@
   .pred td.hex { color: var(--panel-ink); }
   .pred td.act { color: var(--panel-mute); }
   .pred td.mark { text-align: right; width: 2em; font-weight: 500; }
-  .pred td.mark.yes { color: var(--green); } .pred td.mark.no { color: var(--red); }
+  .pred td.mark.yes { color: var(--yes); } .pred td.mark.no { color: var(--no); }
   .pred tr.match td.act { color: var(--panel-ink); }
   .pred .btns { margin: 12px 0 0; }
-  .pred .btns button { background: transparent; color: var(--panel-ink); border-color: var(--panel-line); }
-  pre { background: var(--wash); border: 1px solid var(--line); border-radius: 4px; padding: 14px 16px; font-family: var(--mono); font-size: 12.5px; line-height: 1.6; overflow-x: auto; color: var(--ink); margin: 8px 0 18px; }
+  .pred .btns button { background: #fff; color: var(--panel-ink); border-color: var(--line-2); }
+  pre { background: var(--wash); border: 1px solid var(--line); border-radius: 10px; padding: 14px 16px; font-family: var(--mono); font-size: 12.5px; line-height: 1.6; overflow-x: auto; color: var(--ink); margin: 8px 0 18px; }
   code { font-family: var(--mono); font-size: .92em; }
   .kv { display: grid; grid-template-columns: 6em 1fr; gap: 6px 16px; font-size: 14.5px; line-height: 1.7; margin: 12px 0 18px; padding: 14px 0; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); }
   .kv b { font-family: var(--mono); font-weight: 500; font-size: 12px; letter-spacing: .06em; color: var(--ink-3); padding-top: .25em; }
-  .note { color: var(--ink-2); font-size: 14.5px; line-height: 1.75; padding-left: 14px; border-left: 2px solid var(--line-2); margin: 14px 0; }
+  .note { color: var(--ink-2); font-size: 14.5px; line-height: 1.75; padding-left: 14px; border-left: 3px solid var(--pink); margin: 14px 0; }
   .note p:last-child { margin-bottom: 0; }
   .foot { margin-top: 56px; }
   @media (prefers-reduced-motion: reduce) { .bar i { transition: none; } }
@@ -70,8 +70,8 @@
 </head>
 <body>
 <div class="wrap">
-  <header class="top"><a href="../../index.html">hitoridev studio</a><span class="tag">topic craft</span></header>
-  <p class="meta" style="margin-top:44px"><span>2026-09-18</span><span>デモ</span></p>
+  <header class="top"><a class="brand" href="../../index.html"><img class="avatar" src="../../assets/avatar.png" alt="">hitoridev studio</a><span class="tag">topic craft</span></header>
+  <p class="meta" style="margin-top:40px"><span>2026-09-18</span><span class="kind">デモ</span></p>
 
   <h1 style="margin-top:8px">Factorio の乱数は、<span style="white-space:nowrap">3回見れば</span>次が全部わかる</h1>
   <p class="lead">Factorio が使う乱数生成器 taus88 を、ゲームの実装と同じ式で JavaScript に書いた。出力を3つ観測しただけで 88bit の内部状態を復元し、先の値を全部当てる。</p>

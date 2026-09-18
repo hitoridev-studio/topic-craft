@@ -1,0 +1,115 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>13体の AI が Git の履歴だけを共有し、12日間研究し続けた</title>
+<meta name="description" content="NVIDIA の論文 Agora を読んだ。研究の結果・仮説・検証を Git のコミットとして積む共有メモリの上で、13体のコーディングエージェントが司令塔なしに 12日間研究し、訓練なしのモデル初期化で学習済み GPT-2 との差の 62% を詰めた記録。">
+<meta property="og:title" content="13体の AI が Git の履歴だけを共有し、12日間研究し続けた">
+<meta property="og:description" content="NVIDIA の Agora は、研究の結果・仮説・検証を Git のコミットとして積む共有メモリ。13体のエージェントが司令塔なしで 1,703 件を投稿し、訓練なしのモデル初期化で GPT-2 との差の 62% を詰め、互いの再現 165 件に失敗はなかった。">
+<meta property="og:image" content="https://hitoridev-studio.github.io/topic-craft/works/2026-09-18-agora-git-shared-memory/card.jpg">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+JP:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&family=Zen+Maru+Gothic:wght@500;700&display=swap">
+<link rel="stylesheet" href="../../assets/site.css">
+<style>
+  /* このページだけの部品。土台（書体・余白・罫）は assets/site.css */
+  .lead { color: var(--ink-2); font-size: 17px; line-height: 1.75; margin: 0 0 12px; }
+  pre { background: var(--wash); border: 1px solid var(--line); border-radius: var(--radius, 10px); padding: 14px 16px; font-family: var(--mono); font-size: 12.5px; line-height: 1.7; overflow-x: auto; color: var(--ink); margin: 8px 0 18px; }
+  code { font-family: var(--mono); font-size: .92em; }
+  .kv { display: grid; grid-template-columns: 6em 1fr; gap: 6px 16px; font-size: 14.5px; line-height: 1.75; margin: 12px 0 18px; padding: 14px 0; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); }
+  .kv b { font-family: var(--mono); font-weight: 500; font-size: 12px; letter-spacing: .06em; color: var(--ink-3); padding-top: .25em; }
+  @media (max-width: 420px) { .kv { grid-template-columns: 1fr; gap: 2px 0; } .kv b { padding-top: .6em; } }
+  .ms { width: 100%; border-collapse: collapse; font-size: 13.5px; line-height: 1.6; margin: 10px 0 6px; font-variant-numeric: tabular-nums; }
+  .ms th { text-align: left; font-family: var(--mono); font-size: 11px; letter-spacing: .1em; color: var(--ink-3); font-weight: 500; padding: 2px 10px 8px 0; text-transform: uppercase; border-bottom: 1px solid var(--line-2); }
+  .ms td { padding: 6px 10px 6px 0; border-bottom: 1px solid var(--line); vertical-align: top; }
+  .ms td.t, .ms td.n { font-family: var(--mono); font-size: 12.5px; white-space: nowrap; }
+  .ms td.n { font-weight: 500; }
+  .ms tr.day1 td.n { color: var(--pink-deep, #b3261e); }
+  @media (max-width: 480px) {
+    /* 狭い画面では 1 行を「日時・誰・bpb」と「変更」の 2 段に組む（4 列のままだと変更の列が 130px になる） */
+    .ms, .ms tbody { display: block; }
+    .ms thead { display: none; }
+    .ms tr { display: grid; grid-template-columns: auto auto 1fr; column-gap: 14px; padding: 9px 0; border-bottom: 1px solid var(--line); }
+    .ms td { border: 0; padding: 0; }
+    .ms td.n { text-align: right; }
+    .ms td:nth-child(4) { grid-column: 1 / -1; padding-top: 2px; }
+  }
+  .cap { font-size: 12.5px; color: var(--ink-3); line-height: 1.7; margin: 6px 0 18px; }
+  .note { color: var(--ink-2); font-size: 14.5px; line-height: 1.75; padding-left: 14px; border-left: 3px solid var(--pink, var(--line-2)); margin: 14px 0; }
+  .note p:last-child { margin-bottom: 0; }
+  .foot { margin-top: 56px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top"><a class="brand" href="../../index.html"><img class="avatar" src="../../assets/avatar.png" alt="">hitoridev studio</a><span class="tag">topic craft</span></header>
+  <p class="meta" style="margin-top:40px"><span>2026-09-18</span><span class="kind">記事</span></p>
+
+  <h1 style="margin-top:8px"><span style="white-space:nowrap">13体</span>の AI が Git の履歴だけを共有し、<span style="white-space:nowrap">12日間</span>研究し続けた</h1>
+  <p class="lead">NVIDIA の論文 Agora は、AI エージェントの研究成果（結果・洞察・仮説・検証）を Git のコミットとして積む共有メモリを提案し、13体のコーディングエージェントに担当も司令塔もなしで 12日間研究させた記録を報告している。1,703 件の投稿で「訓練なしのモデル初期化」の評価値を 3.39 から 1.899 bits/byte へ下げ、互いの再現 165 件に失敗は一つもなかった。</p>
+  <p class="meta"><span>論文: <a href="https://arxiv.org/abs/2609.18094">Zhang ほか（NVIDIA）, arXiv:2609.18094</a></span><span>2026-09-16 投稿</span></p>
+
+  <h2>何が起きたか</h2>
+  <p>課題は、141 個の学習済みモデルの重みと順伝播だけを使って、どのモデルとも次元が一致しない 14 層の注意＋状態空間（SSM）ハイブリッド（1億1957万パラメータ）を初期化すること。訓練データも勾配更新も禁止。評価は次トークン損失を UTF-8 バイト数で割った bits per byte（bpb）で、乱数初期化が 3.3923、学習済み GPT-2 124M が約 1.0。</p>
+  <p>ワーカーは Claude Code（Claude Opus 4.7）と Codex（GPT-5.5）のセッション 13 アカウント。与えたのは 2 ページの brief と評価器と共有グラフだけで、手法も役割も指示していない。各セッションは、analyze を読んで親を選び、そのコミットを checkout して 1 つ変え、評価し、再現に要るものをコミットして push する、を繰り返した。4月26日から5月8日までの 11日19時間で 1,703 件（採点済み結果 1,124・洞察 284・仮説 203・検証 165・報告 1）。</p>
+  <p>最良は 1.899044 bpb で、乱数初期化と GPT-2 の差の 62% を詰めた。その祖先は 145 コミット・15 アカウントにまたがり、親エッジ 144 本のうち 115 本がアカウント境界を越える。一人で組み上げた手法ではない。検証 165 件はすべて著者と別のアカウントによるもので、失敗の報告はゼロだった。</p>
+
+  <table class="ms">
+    <thead><tr><th>UTC</th><th>誰</th><th>bpb</th><th>加えた変更</th></tr></thead>
+    <tbody>
+      <tr><td class="t">—</td><td class="t">—</td><td class="n">3.3923</td><td>乱数初期化</td></tr>
+      <tr class="day1"><td class="t">04-27 00:24</td><td class="t">worker1</td><td class="n">4.6784</td><td>GPT-2 と Mamba の重みを切り貼り（乱数より悪い。負の結果として投稿）</td></tr>
+      <tr class="day1"><td class="t">04-27 00:57</td><td class="t">worker1</td><td class="n">2.5151</td><td>GPT-2 の予測からユニグラムのプライア。残差の副層は零</td></tr>
+      <tr class="day1"><td class="t">04-27 01:50</td><td class="t">worker1</td><td class="n">2.1284</td><td>バイグラム遷移行列を randomized SVD で埋め込みと出力ヘッドへ</td></tr>
+      <tr class="day1"><td class="t">04-27 06:55</td><td class="t">worker2</td><td class="n">1.9319</td><td>接頭辞 24 個、幾何平均で集約</td></tr>
+      <tr class="day1"><td class="t">04-27 13:30</td><td class="t">worker2</td><td class="n">1.9304</td><td>接頭辞ごとに log-softmax してから平均（18 番目の採点済み投稿）</td></tr>
+      <tr><td class="t">04-28 04:31</td><td class="t">slurm_worker_4</td><td class="n">1.9228</td><td>2 つ目のドナー Cerebras-GPT 111M、分散と自然さの重み</td></tr>
+      <tr><td class="t">04-29 11:04</td><td class="t">slurm_worker_2</td><td class="n">1.9136</td><td>ドナー 6 つ、1 トークン文脈 28 個</td></tr>
+      <tr><td class="t">05-01 05:10</td><td class="t">worker2</td><td class="n">1.9062</td><td>randomized SVD に冪乗反復を 1 回</td></tr>
+      <tr><td class="t">05-01 10:28</td><td class="t">slurm_worker_3</td><td class="n">1.9043</td><td>層 0 の注意を一様な因果平均に</td></tr>
+      <tr><td class="t">05-03 00:13</td><td class="t">slurm_worker_3</td><td class="n">1.9028</td><td>最初の SSM 編集（層 1 の帯の平均）。地図のビューを読んで選んだ</td></tr>
+      <tr><td class="t">05-05 17:34</td><td class="t">slurm_worker_6</td><td class="n">1.8995</td><td>層 0 の FFN に GPT-2 small からの射影</td></tr>
+      <tr><td class="t">05-08 13:24</td><td class="t">slurm_worker_1</td><td class="n">1.8990</td><td>層 1・3・7 の SSM 出力射影を帯をまたいで書く</td></tr>
+    </tbody>
+  </table>
+  <p class="cap">最良の投稿の祖先に並ぶ節目（論文 Table 4 を訳した）。赤は初日。どの行も同じ開発用評価器で選ばれたので、隣り合う行は探索の段階であって対照実験ではない。</p>
+
+  <h2>仕組み</h2>
+  <p>投稿の一つひとつが Git のコミットで、親エッジが「その上に積んだ」を意味する。コードを伴う投稿はリポジトリの状態を丸ごと持つので、どの主張も checkout して再実行できる。状態は Git だけで、検索用の SQLite の索引も分析ビューも Git の履歴から作り直せる。</p>
+  <p>品質は投票ではなく下流の証拠で決める。ある投稿の評価値は「別アカウントがその上に積んだ投稿の重みの和」で、自分の続きは数えない。検証は確認 +20・部分 +10・失敗 −20、結果・洞察・仮説は +5。analyze はリーダーボードのほかに、最も積まれたノード・手薄な有望株・未検証・未着手の仮説といったビューを一度に返し、意味クラスタが取れると多様性つきの UCB で候補を exploit・explore known・explore novel の 3 枠に分けて見せる。</p>
+<pre>評価値  S(u) = Σ_{v: u→v} 1[a(u) ≠ a(v)] · w(v)
+        別アカウント a(v) が u の上に積んだ投稿 v の重み w の和。自分の続きは数えない
+
+候補    U(v) = 100·Q(v) + C·√( log(N+1) / (n(v)+1) ) + 100·D / √(1+ρ(v))
+        Q: 品質の百分位   n: v の上に積まれた数（N は全体）   ρ: 説明が近い重複の数
+        C は指標の分布が最良付近に密集するほど大きくなる</pre>
+
+  <h2>5日間の一極集中と、1回の介入</h2>
+  <p>推移は極端に前のめりだ。初日に出た統計的プライアの 18 件で総減少の 98% が出て、残りの 1,106 件が見つけたのは 0.03。5月2日、活動の 3 分の 1 以上が 1 つの意味クラスタに集まり、リーダーボードは止まっていた。著者らはここで一度だけ手を入れ、クラスタリングと多様性のビューと UCB を配備した。翌朝、支配的なクラスタではなく手薄な SSM のクラスタを選んだワーカーが最初の 1.90 未満を出した。介入はこの 1 回で、タスクの割り当ても承認もしていない。</p>
+  <p>並行再発見も多い。別アカウントが同じスコアを出した 696 組のうち 63% は 1 時間以内、80% は 6 時間以内。共有リーダーボードは重複作業を止めなかった、と論文は書く。</p>
+
+  <h2>見つけた手法</h2>
+  <div class="kv">
+    <b>Stage A</b><span>GPT-2 の語彙を共有する 6 つのドナーに、全 50,257 トークン × 28 通りの 1 トークン文脈で次トークンの log-softmax を出させ、固定の重みで混ぜて 50257×50257 の遷移表を作る。列ごとの平均 u を分けて中心化し、rank 671 の randomized SVD で分解。左特異ベクトルを入力埋め込みに、右特異ベクトル×特異値を出力ヘッドに、次元 0 に u を置き、副層はすべて零にする。「14 層の網に格納されたバイグラムモデル」ができる。</span>
+    <b>Stage B</b><span>隠れ状態の 96 次元の帯に対する疎で決定的な編集。注意層は 1 つの帯の因果平均に、層 0 の SwiGLU には GPT-2 small の第 1 MLP の SVD 射影を、SSM は選択経路を切って畳み込みに。各定数は「当時の最良に 1 つ変更を加えて評価が改善したから残った」もの。</span>
+  </div>
+
+  <h2>確かめたこと</h2>
+  <div class="kv">
+    <b>算術</b><span>62% は (3.3923 − 1.899044) / (3.3923 − 1.0) = 0.6242。98% は (3.3923 − 1.9304) / (3.3923 − 1.899044) = 0.9790。残りは 1,124 − 18 = 1,106 件で、差は 0.031。</span>
+    <b>Stage A</b><span>V = 24 の乱数の遷移表で Algorithm 1 の 8〜11 行を組み、副層をすべて零にした網の logits（埋め込み × ヘッド<sup>T</sup> × √d）を見た。d = V で遷移表と最大誤差 1.7×10<sup>-14</sup> で一致し、d &lt; V では誤差が落とした特異値の二乗和の平方根に一致する（Eckart–Young。d = 4 で 31.79、20 で 3.00）。文脈を変えても現在のトークンが同じなら logits は同じ。中心化した表は列和が 0 なので rank ≤ V − 1 で、次元 0 を u に空けた rank d − 1 がちょうど足りる。</span>
+    <b>テスト</b><span>同じディレクトリの <a href="factorized-bigram.test.mjs"><code>factorized-bigram.test.mjs</code></a>（Node・依存なし・7 件）。SVD は片側ヤコビ法。</span>
+  </div>
+
+  <h2>注意</h2>
+  <div class="note">
+    <p>論文自身が「因果は未確定」と書いている。同じモデルと計算資源で Agora 無しの対照実験はしておらず、付録 C にその比較計画を置いている。一極集中から抜けたのも、人間が地図（クラスタのビュー）を配備した後だ。</p>
+    <p>全部が同じ 200 テキストの開発用評価器で選ばれている。信用すべきは 3.39 → 1.90 の改善幅で、末尾の桁ではない（最後の変更の効果は 9×10<sup>-6</sup> で、ハードウェア間の差 1.3×10<sup>-3</sup> より小さい）。著者らは勝ち筋を再実行しておらず、コードやトレースの公開 URL は論文に無い（読んだ範囲）。</p>
+  </div>
+
+  <p class="foot">出典: Yifan Zhang, Yunheng Zou, Shaokun Zhang, Jian Hu, Hao Zhang, Binfeng Xu, Jan Kautz, Yi Dong（NVIDIA）, <a href="https://arxiv.org/abs/2609.18094">Agora: Git as Shared Memory for Collective AutoResearch</a>（arXiv:2609.18094, 2026-09-16）。数字はすべて同論文の §3–4・付録による。このページのコードは MIT（<a href="https://github.com/hitoridev-studio/topic-craft">GitHub</a>）。</p>
+</div>
+</body>
+</html>

@@ -1,0 +1,18 @@
+{
+  "kind": "記事",
+  "date": "2026-09-18",
+  "title": "13体の AI が Git の履歴だけを共有し、12日間研究し続けた",
+  "summary": "NVIDIA の Agora は、研究の結果・仮説・検証を Git のコミットとして積む共有メモリ。13体のエージェントが司令塔なしで 1,703 件を投稿し、訓練なしのモデル初期化で GPT-2 との差の 62% を詰め、互いの再現 165 件に失敗はなかった",
+  "card": "card.jpg",
+  "source": {
+    "label": "Zhang ほか（NVIDIA）, Agora: Git as Shared Memory for Collective AutoResearch",
+    "url": "https://arxiv.org/abs/2609.18094"
+  },
+  "text": "AIエージェント13体が、会話も司令塔もなしに Git の履歴だけを共有して12日間研究した論文（NVIDIA）。\n\n1,703件の投稿、他人による再現165件で失敗ゼロ。訓練なしのモデル初期化で、学習済みGPT-2との差を62%詰めた。\n\n5日間ハマった一極集中を、人間が「地図」を1回見せただけで抜けた。",
+  "reply": "読んで書いた記事（数字は論文のまま）\n{url}\n論文: Zhang ほか（NVIDIA）\"Agora: Git as Shared Memory for Collective AutoResearch\"\nhttps://arxiv.org/abs/2609.18094\n注: Agora 無しの対照実験は未実施と論文自身が書いている。効果の因果は未確定。",
+  "media": {
+    "src": "card.jpg",
+    "type": "image/jpeg",
+    "name": "agora-git-shared-memory.jpg"
+  }
+}

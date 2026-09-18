@@ -1,61 +1,69 @@
 /*
- * topic craft の見た目。参照点: ciechanow.ski（IBM Plex Sans・白地・#444 の本文・細い罫・1.6〜1.8 の行送り・作品だけの一覧）、
- * sizu.me（Inter＋日本語ゴシック・16px/1.7・40〜48rem の読み幅・淡い灰）、distill.pub（550〜700px の読み幅・灰の見出し）。
- * 方針: 白地・墨色・罫線と余白だけで階層を作る。色の札や角丸のカードを使わない。数字は等幅で桁を揃える。
- * 書体: IBM Plex Sans JP（和文）・IBM Plex Sans（欧文）・IBM Plex Mono（数字・ラベル）。同じ一族で揃える。
+ * topic craft の見た目 v2。X のアカウントのアイコン（白地、桃色の髪、青いマグ、金色と青と灰のコード線、薄い藤色の影）に合わせる。
+ * 参照点（寸法と階層の作り方）: ciechanow.ski・sizu.me・distill.pub。色と丸みはアイコンから取る。
+ * 方針: 白地。墨は青みの濃い灰（#3b3f4a）。強調は青（マグ）、桃（髪）、金（コード線）の3色を少量。角は丸く（10px・ボタンは丸薬形）。
+ * 書体: 見出しは Zen Maru Gothic（丸ゴシック・アイコンの柔らかさ）、本文は IBM Plex Sans JP、数字とラベルは IBM Plex Mono。
  */
 :root {
-  --bg: #ffffff; --ink: #1a1a1a; --ink-2: #4a4a4a; --ink-3: #7a7a7a; --line: #e6e6e6; --line-2: #d4d4d4; --wash: #f6f6f5;
+  --bg: #ffffff; --wash: #f5f6fa; --line: #e4e6ee; --line-2: #cfd3de;
+  --ink: #3b3f4a; --ink-2: #5c6170; --ink-3: #9a9ea9;
+  --blue: #4a7fd4; --blue-deep: #3568bd; --blue-soft: #e3ecfa;
+  --pink: #f6b8c1; --pink-deep: #e08a9b; --pink-soft: #fdeef1;
+  --gold: #f2c14e; --gold-deep: #c99a24; --gold-soft: #fdf3d8;
+  --lav: #ccccd8;
   --sans: "IBM Plex Sans JP", "IBM Plex Sans", -apple-system, "Hiragino Sans", "Noto Sans JP", system-ui, sans-serif;
-  --latin: "IBM Plex Sans", "IBM Plex Sans JP", -apple-system, system-ui, sans-serif;
+  --display: "Zen Maru Gothic", "IBM Plex Sans JP", "Hiragino Maru Gothic ProN", sans-serif;
   --mono: "IBM Plex Mono", ui-monospace, "SF Mono", Menlo, monospace;
-  --measure: 40rem;
+  --measure: 40rem; --radius: 10px;
 }
 * { box-sizing: border-box; }
 html, body { margin: 0; }
 body { background: var(--bg); color: var(--ink); font-family: var(--sans); font-size: 16px; line-height: 1.8; font-feature-settings: "palt"; -webkit-font-smoothing: antialiased; text-rendering: optimizeLegibility; }
-a { color: inherit; text-decoration: underline; text-decoration-color: var(--line-2); text-underline-offset: .18em; text-decoration-thickness: 1px; }
-a:hover { text-decoration-color: var(--ink); }
+a { color: var(--blue-deep); text-decoration: underline; text-decoration-color: var(--blue-soft); text-decoration-thickness: 2px; text-underline-offset: .16em; }
+a:hover { text-decoration-color: var(--blue); }
 .wrap { width: min(100%, var(--measure)); margin: 0 auto; padding-inline: 20px; }
 
-/* 上部: 屋号だけ。帯は付けない */
-.top { display: flex; justify-content: space-between; align-items: baseline; padding: 22px 0 0; font-family: var(--latin); font-size: 13px; letter-spacing: .01em; }
-.top a { font-weight: 600; text-decoration: none; }
+/* 上部: アイコンと屋号。帯は付けない */
+.top { display: flex; justify-content: space-between; align-items: center; padding: 18px 0 0; }
+.top .brand { display: inline-flex; align-items: center; gap: 10px; font-family: var(--display); font-weight: 700; font-size: 15px; letter-spacing: .01em; color: var(--ink); text-decoration: none; }
+.top .avatar { width: 30px; height: 30px; border-radius: 50%; border: 1px solid var(--line); background: #fff; object-fit: cover; }
 .top .tag { font-family: var(--mono); font-size: 12px; color: var(--ink-3); letter-spacing: .04em; }
 
 /* 一覧 */
-.site-title { font-family: var(--latin); font-weight: 600; font-size: 15px; letter-spacing: .01em; color: var(--ink-3); margin: 56px 0 28px; padding-bottom: 12px; border-bottom: 1px solid var(--line); }
 .list { list-style: none; margin: 0; padding: 0; }
-.list li { padding: 0 0 36px; margin: 0 0 36px; border-bottom: 1px solid var(--line); }
+.list li { padding: 0 0 32px; margin: 0 0 32px; border-bottom: 1px solid var(--line); }
 .list li:last-child { border-bottom: 0; }
-.list a { display: block; text-decoration: none; }
-.list .thumb { display: block; width: 100%; aspect-ratio: 16 / 9; object-fit: cover; object-position: top; border-radius: 4px; background: var(--wash); border: 1px solid var(--line); margin-bottom: 16px; }
-.list .d { font-family: var(--mono); font-size: 12px; letter-spacing: .06em; color: var(--ink-3); display: flex; gap: 14px; margin-bottom: 6px; }
-.list .t { font-weight: 600; font-size: 20px; line-height: 1.45; letter-spacing: -.005em; margin: 0 0 6px; text-wrap: balance; }
-.list a:hover .t { text-decoration: underline; text-decoration-color: var(--line-2); text-underline-offset: .2em; }
+.list a { display: block; text-decoration: none; color: inherit; }
+.list .thumb { display: block; width: 100%; aspect-ratio: 16 / 9; object-fit: cover; object-position: top; border-radius: var(--radius); background: var(--wash); border: 1px solid var(--line); margin-bottom: 14px; }
+.list .d { font-family: var(--mono); font-size: 12px; letter-spacing: .06em; color: var(--ink-3); display: flex; gap: 14px; margin-bottom: 4px; }
+.list .d .kind { color: var(--blue-deep); }
+.list .t { font-family: var(--display); font-weight: 700; font-size: 20px; line-height: 1.45; margin: 0 0 6px; text-wrap: balance; color: var(--ink); }
+.list a:hover .t { color: var(--blue-deep); }
 .list .s { color: var(--ink-2); font-size: 15px; line-height: 1.75; margin: 0; }
 
 /* 見出し・本文 */
-h1 { font-weight: 600; font-size: clamp(26px, 6vw, 34px); line-height: 1.3; letter-spacing: -.012em; margin: 28px 0 12px; text-wrap: balance; }
-h2 { font-weight: 600; font-size: 18px; line-height: 1.5; margin: 48px 0 10px; }
+h1 { font-family: var(--display); font-weight: 700; font-size: clamp(25px, 6vw, 32px); line-height: 1.35; letter-spacing: 0; margin: 24px 0 12px; text-wrap: balance; color: var(--ink); }
+h2 { font-family: var(--display); font-weight: 700; font-size: 18px; line-height: 1.5; margin: 44px 0 10px; color: var(--ink); }
 p { margin: 0 0 16px; }
 .meta { font-family: var(--mono); font-size: 12px; letter-spacing: .06em; color: var(--ink-3); display: flex; flex-wrap: wrap; gap: 6px 16px; align-items: baseline; margin: 0 0 8px; }
-.foot { margin-top: 72px; padding: 16px 0 40px; border-top: 1px solid var(--line); font-family: var(--mono); font-size: 12px; letter-spacing: .04em; color: var(--ink-3); }
-.foot a { color: inherit; }
+.meta .kind { color: var(--blue-deep); }
+.foot { margin-top: 64px; padding: 16px 0 40px; border-top: 1px solid var(--line); font-family: var(--mono); font-size: 12px; letter-spacing: .04em; color: var(--ink-3); }
+.foot a { color: inherit; text-decoration-color: var(--line-2); }
 
 /* 投稿ページ（本人だけが使う） */
-.post { margin-top: 32px; }
+.post { margin-top: 28px; }
 .post .who { font-size: 13px; color: var(--ink-3); margin-bottom: 8px; }
-.post textarea { width: 100%; font: inherit; font-size: 16px; line-height: 1.7; color: var(--ink); background: var(--bg); border: 1px solid var(--line-2); border-radius: 4px; padding: 12px 14px; resize: vertical; min-height: 150px; }
-.post textarea:focus { outline: none; border-color: var(--ink); }
+.post textarea { width: 100%; font: inherit; font-size: 16px; line-height: 1.7; color: var(--ink); background: var(--bg); border: 1px solid var(--line-2); border-radius: var(--radius); padding: 12px 14px; resize: vertical; min-height: 150px; }
+.post textarea:focus { outline: none; border-color: var(--blue); box-shadow: 0 0 0 3px var(--blue-soft); }
 .post .cnt { font-family: var(--mono); font-size: 12px; color: var(--ink-3); text-align: right; font-variant-numeric: tabular-nums; margin: 6px 0 14px; }
-.post .cnt.over { color: #b3261e; }
-.post video { width: 100%; max-height: 62vh; background: #000; border-radius: 4px; border: 1px solid var(--line); margin: 0 0 14px; }
+.post .cnt.over { color: var(--pink-deep); }
+.post video { width: 100%; max-height: 62vh; background: var(--wash); border-radius: var(--radius); border: 1px solid var(--line); margin: 0 0 14px; }
 .btns { display: flex; flex-wrap: wrap; gap: 10px; }
-.btns button { flex: 1 1 160px; font: inherit; font-size: 15px; font-weight: 600; min-height: 48px; border-radius: 4px; cursor: pointer; padding: 10px 16px; border: 1px solid var(--ink); background: var(--bg); color: var(--ink); }
-.btns .go { background: var(--ink); color: var(--bg); }
-.btns button.done { color: var(--ink-3); border-color: var(--line-2); }
+.btns button { flex: 1 1 160px; font: inherit; font-size: 15px; font-weight: 600; min-height: 48px; border-radius: 999px; cursor: pointer; padding: 10px 18px; border: 1px solid var(--line-2); background: var(--bg); color: var(--ink); }
+.btns .go { background: var(--blue); border-color: var(--blue); color: #fff; }
+.btns .go:hover { background: var(--blue-deep); }
+.btns button.done { color: var(--blue-deep); border-color: var(--blue-soft); background: var(--blue-soft); }
 .post .note { font-size: 13px; color: var(--ink-3); line-height: 1.7; margin: 10px 0 0; }
 .post .reply { margin-top: 28px; }
-.post .reply pre { white-space: pre-wrap; font: inherit; font-size: 14.5px; line-height: 1.7; background: var(--wash); border-radius: 4px; padding: 12px 14px; margin: 6px 0 10px; color: var(--ink-2); overflow-wrap: anywhere; }
-:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
+.post .reply pre { white-space: pre-wrap; font: inherit; font-size: 14.5px; line-height: 1.7; background: var(--wash); border-radius: var(--radius); padding: 12px 14px; margin: 6px 0 10px; color: var(--ink-2); overflow-wrap: anywhere; }
+:focus-visible { outline: 2px solid var(--blue); outline-offset: 2px; }
