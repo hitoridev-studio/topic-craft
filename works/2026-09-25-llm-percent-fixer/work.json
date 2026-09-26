@@ -1,0 +1,11 @@
+{
+  "kind": "もの",
+  "date": "2026-09-25",
+  "title": "LLM や Jev が出す「◯%確か」を、本当の%に直すツール",
+  "summary": "答え合わせ済みの判定の記録を貼ると、確率を本当に当たる割合に直す式が出ます。見本では、80% 以上と出た 171 件の当たりは 73% で、直した確率なら 83% でした。",
+  "card": "card.jpg",
+  "source": {
+    "label": "SemIf（TheoLeeCJ）",
+    "url": "https://github.com/TheoLeeCJ/SemIf-OpenJev"
+  }
+}

@@ -1,0 +1,528 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>LLM や Jev が出す「◯%確か」を、本当の%に直すツール</title>
+<meta name="description" content="LLM や Jev が判定に付ける確率は、本当に当たる割合と合っているとは限りません。答え合わせ済みの判定の記録を貼ると、確率を本当に当たる割合に直す式が出るツールです。ブラウザだけで動き、貼った記録は外に送りません。">
+<meta property="og:title" content="LLM や Jev が出す「◯%確か」を、本当の%に直すツール">
+<meta property="og:description" content="答え合わせ済みの判定の記録を貼ると、確率を本当に当たる割合に直す式が出ます。ブラウザだけで動きます。">
+<meta property="og:image" content="https://hitoridev-studio.github.io/topic-craft/works/2026-09-25-llm-percent-fixer/card.jpg">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+JP:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&family=Zen+Maru+Gothic:wght@500;700&display=swap">
+<link rel="stylesheet" href="../../assets/site.css">
+<link rel="stylesheet" href="../../assets/flow.css">
+<link rel="icon" href="../../assets/favicon.svg" type="image/svg+xml">
+<link rel="icon" href="../../assets/favicon-32.png" sizes="32x32" type="image/png">
+<link rel="apple-touch-icon" href="../../assets/apple-touch-icon.png">
+<style>
+  /* このページだけの部品。土台（書体・余白・罫）は assets/site.css */
+  :root { --panel: #f5f6fa; --panel-ink: #3b3f4a; --panel-mute: #9a9ea9; --panel-line: #e4e6ee; }
+  .lead { color: var(--ink-2); font-size: 17px; line-height: 1.75; margin: 0 0 12px; }
+  #tool { scroll-margin-top: 8px; }
+  .btns { display: flex; flex-wrap: wrap; gap: 6px; margin: 22px 0 12px; }
+  .btns button, .mini { flex: 0 1 auto; font: inherit; font-size: 13.5px; font-weight: 600; min-height: 44px; padding: 8px 14px; border-radius: 999px; border: 1px solid var(--line-2); background: var(--bg); color: var(--ink); cursor: pointer; white-space: nowrap; }
+  .btns button.primary { background: var(--blue); border-color: var(--blue); color: #fff; }
+  .btns button.go { background: var(--ink); border-color: var(--ink); color: #fff; }
+  .btns button:disabled { opacity: .4; cursor: default; }
+  .panel { background: var(--panel); color: var(--panel-ink); border: 1px solid var(--panel-line); border-radius: 12px; padding: 16px 16px 14px; margin-top: 10px; }
+  .panel + .panel { margin-top: 8px; }
+  .lbl { font-size: 13px; font-weight: 600; color: var(--panel-ink); margin-bottom: 8px; }
+  .lbl span { font-family: var(--mono); color: var(--blue-deep); margin-right: 6px; }
+  textarea { width: 100%; height: 112px; font-family: var(--mono); font-size: 12.5px; line-height: 1.55; color: var(--ink); background: #fff; border: 1px solid var(--line-2); border-radius: 8px; padding: 10px 12px; resize: vertical; }
+  textarea:focus { outline: none; border-color: var(--blue); box-shadow: 0 0 0 3px var(--blue-soft); }
+  .hint { font-size: 12.5px; color: var(--panel-mute); line-height: 1.6; margin-top: 6px; }
+  .read { font-size: 13.5px; line-height: 1.6; margin-top: 8px; min-height: 1.6em; }
+  .read.err { color: var(--pink-deep); }
+  .thr { font-size: 13.5px; margin-bottom: 10px; display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+  select { font: inherit; font-family: var(--mono); font-size: 14px; padding: 4px 8px; border-radius: 8px; border: 1px solid var(--line-2); background: #fff; color: var(--ink); min-height: 36px; }
+  .cards { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .card { background: #fff; border: 1px solid var(--panel-line); border-radius: 10px; padding: 12px 12px 10px; }
+  .card .k { font-size: 12.5px; color: var(--panel-mute); }
+  .card .big { font-family: var(--mono); font-size: 34px; font-weight: 500; line-height: 1.2; letter-spacing: -.02em; font-variant-numeric: tabular-nums; margin: 2px 0; }
+  .card .big small { font-size: 13px; font-family: var(--sans); letter-spacing: 0; color: var(--panel-mute); margin-left: 2px; }
+  .card .s { font-size: 12.5px; color: var(--ink-2); line-height: 1.55; }
+  .card.before .big { color: var(--pink-deep); }
+  .card.after .big { color: var(--blue); }
+  .card .big.none { color: var(--panel-line); }
+  .say { font-size: 14px; line-height: 1.7; margin-top: 10px; min-height: 1.7em; }
+  .say b { font-weight: 600; }
+  .say .bad { color: var(--pink-deep); } .say .good { color: var(--blue-deep); }
+  .say.lit { background: var(--blue-soft); border-radius: 8px; padding: 6px 10px; margin-left: -10px; margin-right: -10px; transition: background .3s; }
+  details { margin-top: 10px; font-size: 13.5px; }
+  details summary { cursor: pointer; color: var(--panel-mute); }
+  .bands { font-size: 13px; margin-top: 6px; }
+  .bands td, .bands th { padding-right: 8px; }
+  .tline { font-size: 14px; margin-bottom: 6px; }
+  .tline b { font-family: var(--mono); font-weight: 500; font-size: 20px; color: var(--blue-deep); }
+  .tnote { display: block; font-size: 12.5px; color: var(--panel-mute); line-height: 1.5; }
+  pre { background: #fff; border: 1px solid var(--panel-line); border-radius: 8px; padding: 12px 14px; font-family: var(--mono); font-size: 12px; line-height: 1.6; overflow-x: auto; color: var(--ink); margin: 6px 0 8px; white-space: pre; }
+  .prose pre { background: var(--wash); border-color: var(--line); margin: 8px 0 18px; }
+  code { font-family: var(--mono); font-size: .92em; }
+  .mini { min-height: 36px; padding: 4px 12px; font-size: 12.5px; }
+  ul.find { padding-left: 1.2em; margin: 8px 0 16px; }
+  ul.find li { margin-bottom: 8px; }
+  .note { color: var(--ink-2); font-size: 14.5px; line-height: 1.75; padding-left: 14px; border-left: 3px solid var(--pink); margin: 14px 0; }
+  .note p:last-child { margin-bottom: 0; }
+  .foot { margin-top: 56px; }
+  @media (max-width: 480px) { .card .big { font-size: 28px; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top"><a class="brand" href="../../index.html"><img class="avatar" src="../../assets/avatar.png" alt="">hitori</a><span class="tag">topic craft</span></header>
+  <p class="meta" style="margin-top:40px"><span>2026-09-25</span><span class="kind">デモ</span></p>
+
+  <h1 style="margin-top:8px">LLM や Jev が出す<span style="white-space:nowrap">「◯%確か」</span>を、本当の%に直すツール</h1>
+  <p class="lead">LLM や Jev は、判定に 80% のような確率を付けます。ですが、80% と出た判定が本当に 8 割当たるとは限りません。公開されている Qwen3.5-4B の判定 256 件で数えると、80% 以上と出た 171 件のうち、当たったのは 73% でした。</p>
+  <p class="lead">そこで、答え合わせ済みの判定の記録を貼ると、確率を本当に当たる割合に直す式が出るツールを作りました。確率にしきい値を置いて、自動で通すか人に回すかを決める前に使ってください。</p>
+  <p class="meta"><span>ブラウザだけで動きます。貼った記録は外に送りません</span></p>
+
+  <section id="tool">
+  <div class="btns">
+    <button type="button" class="primary" id="auto">自動で見せる</button>
+    <button type="button" id="sample">見本を入れる</button>
+    <button type="button" class="go" id="run">直す</button>
+    <button type="button" id="clear">消す</button>
+  </div>
+
+  <div class="panel">
+    <div class="lbl"><span>1</span>答え合わせ済みの判定の記録を貼る</div>
+    <textarea id="input" spellcheck="false" placeholder='1 行に 1 件ずつ、選択肢ごとの確率と、あとで分かった正解を書きます。例:
+0.94,0.04,0.02,B
+Jev の返り値の形でも貼れます。書き方は下の「使い方」にあります。'></textarea>
+    <div class="read" id="read"></div>
+  </div>
+
+  <div class="panel">
+    <div class="lbl"><span>2</span>その%は当たっているか</div>
+    <div class="thr"><select id="thr" aria-label="しきい値"></select>以上と出た判定を自動で通すとしたら</div>
+    <div class="cards">
+      <div class="card before"><div class="k">そのままの%</div><div class="big none" id="bBig">—</div><div class="s" id="bSub">記録を貼ると出ます</div></div>
+      <div class="card after"><div class="k">直した%</div><div class="big none" id="aBig">—</div><div class="s" id="aSub">「直す」を押すと出ます</div></div>
+    </div>
+    <div class="say" id="say"></div>
+    <details><summary>%の帯ごとの内訳</summary><table class="tbl bands" id="bands"></table></details>
+  </div>
+
+  <div class="panel">
+    <div class="lbl"><span>3</span>自分のコードで直す</div>
+    <div class="tline">直す数 T = <b id="tOut">—</b><span class="tnote">確率を 1/T 乗して割り直します。T が 1 より大きいほど確率は下がります</span></div>
+    <pre id="code">「直す」を押すと、ここに式が出ます。</pre>
+    <button type="button" class="mini" id="copy" disabled>コピー</button>
+  </div>
+  </section>
+
+  <div class="prose">
+  <h2>使い方</h2>
+  <p>判定の記録に、あとから分かった正解を足して貼ります。1 行に 1 件で、次の 3 つの形を混ぜても読めます。</p>
+<pre class="mono"># Jev の Choice: 返ってきた probabilities に、正解の選択肢を足す
+{"probabilities": {"returns": 0.9, "shipping": 0.06, "billing": 0.04}, "answer": "returns"}
+# Jev の Noul: yes の確率と、実際に yes だったか
+{"noul": 0.83, "answer": true}
+# CSV: 選択肢の確率を並べ、最後に正解（A・B・C… か 1 から数えた番号）
+0.94,0.04,0.02,B</pre>
+  <p>「直す」を押すと、直す数 T と、確率を直す式が出ます。この式を自分のコードに入れて、直した確率のほうにしきい値を置いてください。</p>
+  <p>見本で試すと、T は 2.50 になります。直した確率で 80% 以上と出る判定は 35 件に減り、そのうち 29 件、83% が当たりでした。残りの判定は人に回すことになります。</p>
+
+  <h2>仕組み</h2>
+  <script type="application/json" id="flow-how">
+  {
+    "id": "2026-09-25-llm-percent-fixer-how",
+    "title": "判定の記録を貼ってから、直した%でしきい値を置くまでの流れ",
+    "direction": "TB",
+    "legend": [{ "tone": "gold", "label": "あなた" }, { "tone": "blue", "label": "このページ" }, { "tone": "pink", "label": "あなたのコード" }],
+    "nodes": [
+      { "id": "rec", "eyebrow": "あなた", "tone": "gold", "w": 210, "title": "判定の記録を貼る", "body": "LLM や Jev が付けた%と、あとで分かった正解。1 行に 1 件" },
+      { "id": "fit", "eyebrow": "このページ", "tone": "blue", "w": 210, "title": "直す数 T を決める", "body": "正解の選択肢に付いた%が、全体でいちばん高くなる T を探す" },
+      { "id": "cv", "eyebrow": "このページ", "tone": "blue", "w": 210, "title": "5 組に分けて確かめる", "body": "4 組で T を決め、残りの 1 組で当たり率を数える。これを 5 回" },
+      { "id": "res", "eyebrow": "このページ", "tone": "blue", "w": 210, "title": "当たっているかを出す", "body": "しきい値以上の件数と当たり率を、そのままの%と直した%で並べる" },
+      { "id": "fix", "eyebrow": "あなたのコード", "tone": "pink", "w": 210, "title": "%を直す", "body": "各選択肢の%を 1/T 乗し、合計 100% に割り直す（出てくる 1 行の式）" },
+      { "id": "gate", "eyebrow": "あなたのコード", "tone": "pink", "w": 210, "title": "しきい値で振り分ける", "body": "直した%がしきい値以上なら自動で通す。未満は人に回す" }
+    ],
+    "edges": [
+      { "source": "rec", "target": "fit", "label": "記録" },
+      { "source": "fit", "target": "cv", "label": "確かめる" },
+      { "source": "cv", "target": "res" },
+      { "source": "fit", "target": "fix", "label": "T と式を持ち帰る", "dashed": true },
+      { "source": "fix", "target": "gate", "label": "直した%" }
+    ]
+  }
+  </script>
+  <div class="flow tall" data-graph="flow-how"></div>
+  <p>LLM や Jev に選択肢から 1 つ選ばせると、選択肢ごとに確率が付きます。Jev はこれを <code>probabilities</code> として返します。ふつうの LLM でも、答えの 1 文字目に出る A・B・C の確率を読めば、同じものが取れます。SemIf は、このやり方で Jev と同じ使い方を LLM で再現しているプロジェクトです。</p>
+  <p>この確率は、実際に当たる割合と合っているとは限りません。冒頭の見本では高く出すぎていて、80% 以上と出た判定の当たりは 73% でした。</p>
+  <p>直し方は単純で、各選択肢の確率を 1/T 乗してから、合計が 100% になるように割り直すだけです。T が 1 より大きいと高く出すぎた確率が下がり、1 より小さいと低く出すぎた確率が上がります。</p>
+  <p>確率を変えたら選ぶ答えまで変わるのでは、と思うかもしれませんが、変わりません。1/T 乗しても確率の大小の順は入れ替わらないので、いちばん高い選択肢はそのままです。変わるのは確率の値だけです。</p>
+  <p>T は、貼った記録の正解の選択肢に付いた確率が、全体としていちばん高くなるように探して決めます。機械学習で温度スケーリングと呼ばれている方法で (Guo ほか, 2017)、LLM の temperature と同じ形の式になります。</p>
+  <p>ただし、T を決めるのに使った判定で当たりを数えると、結果が甘く出ます。そこでこのページは記録を 5 組に分け、4 組で決めた T で残りの 1 組を数えることを 5 回くり返して、当たり率を出しています。</p>
+  <p>Jev の confidence にしきい値を置いている場合も、同じように直せます。TypeSafe の文書にあるコードでは、confidence を (選択肢の数 × いちばん高い確率 − 1) ÷ (選択肢の数 − 1) で計算しています。直した確率をこの式に入れれば、confidence に置いていたしきい値をそのまま使えます。</p>
+
+  <h2>確かめたこと</h2>
+  <ul class="find">
+    <li>見本は、SemIf が公開している判定の記録です。Qwen3.5-4B に英語の 3 択を 256 問解かせ、選択肢ごとの確率を残したものです。SemIf のリポジトリには正解が入っていないので、元の問題集 WANLI から、SemIf の選定表どおりに作り直しました。使った WANLI の版は、SHA-256 が SemIf の記録と一致することを確かめています。</li>
+    <li>このページの計算のコードを Node でそのまま読み込んで、SemIf が公開している値が出るかを比べました。当たりは 256 問中 163 問で、T は 2.499030870405456 になり、SemIf と同じ組分けにすると全桁が一致しました。5 組それぞれで決めた T も 2.40〜2.68 に収まっています。確率と当たる割合のずれを表す ECE という値は、0.208 から 0.069 に下がりました。</li>
+    <li>見本は確率を 4 桁に丸めて載せていますが、丸めた値から求めても T の差は 0.001 未満でした。</li>
+    <li>3 つの形の記録を読めること、出てくる式がこのページと同じ確率を出すこと、T を 0.25 から 8 まで変えても選ぶ答えが 1 件も変わらないことを、テストで確かめました。テストは <code>percent-fixer.test.mjs</code> にあり、ほかのパッケージは使っていません。</li>
+    <li>直らないものもあります。見本では、正解が A の位置にある問題の当たりが 83% (65 問) なのに、C の位置だと 53% (101 問) でした。先に書いた選択肢が選ばれやすいということです。確率を直しても選ぶ答えは変わらないので、この偏りは残ります。</li>
+  </ul>
+
+  <h2>注意</h2>
+  <div class="note">
+    <p>直す数 T は、記録ごとに違います。SemIf の記録では、同じモデルでも、別の種類の問題 144 問では T が 1.23 でした。なので T は、使う場面と同じモデル・同じ種類の問題の記録で決めてください。記録が少ないと T はぶれるので、50 件より少ないとページに注意が出ます。</p>
+    <p>見本は、1 つのモデルに英語の推論問題を解かせた記録です。Jev 自身の確率は測っていません。Jev の確率も場面によって当たる割合とずれることは、林寛太さんが確かめています (<a href="https://note.com/kantahayashiai/n/n4c54eed30787">出典</a>)。</p>
+    <p>SemIf は、TypeSafe 社とも Jev とも関係のない独立したプロジェクトです。このページは記録の計算だけをしていて、モデルは動かさず、通信もしません。</p>
+  </div>
+  </div>
+
+  <p class="foot">出典: <a href="https://github.com/TheoLeeCJ/SemIf-OpenJev">SemIf</a>（TheoLeeCJ・コミット 23cf1f3・MIT）の README・docs/CALIBRATION.md・results/raw の記録。正解は <a href="https://huggingface.co/datasets/alisawuffles/WANLI">WANLI</a>（Liu ほか 2022・CC BY 4.0）。Jev の返り値と confidence の式は <a href="https://docs.typesafe.ai/primitives/choice">TypeSafe の文書</a>（Choice・Noul・Confidence）。温度スケーリングは <a href="https://arxiv.org/abs/1706.04599">Guo ほか, On Calibration of Modern Neural Networks（2017）</a>。背景は <a href="https://zenn.dev/nwn/articles/824026c76116e0">nwn「TypeSafeのJevを正しく驚く、それってLLMでできませんか？」</a>と<a href="https://note.com/kantahayashiai/n/n4c54eed30787">林寛太「Jevはサイコロを振らない」</a>。見本の作り直しは <code>make-data.mjs</code>。このページのコードは MIT（<a href="https://github.com/hitoridev-studio/topic-craft">GitHub</a>）。作ったのは hitori（<a href="https://x.com/botchi_the_dev">X</a>）。</p>
+</div>
+
+<script src="../../assets/flow.js" defer></script>
+
+<script type="text/plain" id="sample-data">
+# 見本: Qwen3.5-4B の 3 択の判定 256 件（英語の問題。A・B・C の確率, 正解）
+0.08949,0.0615,0.849,C
+0.9677,0.02922,0.00308,A
+0.1465,0.8429,0.01061,A
+0.9782,0.0203,0.001471,A
+0.004609,0.9953,0.00006575,B
+0.2014,0.7966,0.001975,B
+0.01404,0.001677,0.9843,C
+0.227,0.6993,0.0737,B
+0.06749,0.9317,0.0008496,B
+0.02086,0.6095,0.3697,C
+0.9353,0.004908,0.05979,A
+0.9815,0.01798,0.0005428,A
+0.9764,0.02296,0.000612,B
+0.9589,0.0155,0.02556,C
+0.03287,0.9607,0.006473,B
+0.06654,0.01485,0.9186,C
+0.2218,0.7741,0.004062,A
+0.9954,0.002467,0.002177,C
+0.1128,0.05331,0.8338,C
+0.9457,0.00722,0.04708,A
+0.9279,0.06722,0.004869,A
+0.9997,0.0001398,0.0001234,A
+0.3141,0.5178,0.1681,C
+0.9796,0.01794,0.002428,A
+0.9759,0.02295,0.001143,A
+0.9974,0.0007083,0.001925,C
+0.09641,0.09641,0.8072,C
+0.6569,0.2738,0.06924,B
+0.005908,0.000485,0.9936,C
+0.9584,0.004438,0.03716,C
+0.9519,0.04739,0.000676,A
+0.7519,0.2441,0.003946,B
+0.3144,0.0201,0.6655,C
+0.01239,0.003549,0.9841,B
+0.02031,0.9785,0.001146,B
+0.9444,0.05328,0.002341,A
+0.2187,0.7633,0.01795,B
+0.05668,0.05668,0.8866,C
+0.03112,0.7083,0.2606,B
+0.06749,0.9317,0.0008496,B
+0.9644,0.02912,0.006498,A
+0.5402,0.4207,0.03913,B
+0.9975,0.002182,0.0003346,A
+0.6685,0.01572,0.3158,C
+0.2408,0.01744,0.7417,C
+0.5228,0.4614,0.01579,B
+0.9959,0.003592,0.0005508,A
+0.9017,0.09504,0.003252,B
+0.9776,0.008458,0.01394,C
+0.9945,0.004605,0.0009069,B
+0.05526,0.8643,0.0804,C
+0.8856,0.1058,0.008682,A
+0.9999,0.0001089,0.00002753,A
+0.02266,0.9636,0.01374,C
+0.05306,0.9406,0.006338,B
+0.2686,0.7303,0.001098,C
+0.2403,0.01972,0.74,A
+0.9912,0.006678,0.002168,A
+0.2994,0.6338,0.0668,B
+0.5991,0.118,0.283,C
+0.02587,0.003501,0.9706,C
+0.91,0.08464,0.005411,B
+0.7662,0.171,0.06289,C
+0.05578,0.07163,0.8726,C
+0.4664,0.5285,0.005181,B
+0.9835,0.002438,0.01403,A
+0.0721,0.8783,0.04955,C
+0.9644,0.01559,0.02002,C
+0.9965,0.002799,0.0007077,A
+0.2108,0.05331,0.7359,A
+0.9992,0.0001794,0.0006262,A
+0.01589,0.001304,0.9828,C
+0.1327,0.7639,0.1034,B
+0.1112,0.8214,0.06743,C
+0.9609,0.03726,0.001855,A
+0.6761,0.3194,0.004555,A
+0.02294,0.001467,0.9756,C
+0.994,0.002792,0.003164,A
+0.05331,0.001824,0.9449,C
+0.02916,0.005068,0.9658,C
+0.03304,0.001452,0.9655,C
+0.01797,0.9809,0.001148,B
+0.6945,0.199,0.1065,C
+0.5578,0.05879,0.3834,C
+0.02029,0.9778,0.001888,B
+0.9971,0.002801,0.000123,A
+0.1527,0.07211,0.7752,C
+0.0229,0.9736,0.003511,B
+0.9879,0.009685,0.002449,A
+0.08705,0.08705,0.8259,B
+0.03305,0.9658,0.001131,B
+0.0124,0.9854,0.002156,B
+0.09014,0.05467,0.8552,C
+0.9184,0.07539,0.006188,A
+0.01789,0.005127,0.977,C
+0.1321,0.006576,0.8613,C
+0.2144,0.03726,0.7483,C
+0.02544,0.9547,0.01982,B
+0.199,0.6945,0.1065,C
+0.9669,0.02577,0.007382,A
+0.9845,0.004559,0.01094,A
+0.221,0.7714,0.007563,B
+0.2207,0.25,0.5293,B
+0.7752,0.07211,0.1527,B
+0.9069,0.05797,0.03516,A
+0.08795,0.07761,0.8344,C
+0.01406,0.0003746,0.9856,C
+0.4339,0.5571,0.009005,B
+0.004069,0.9957,0.0002296,B
+0.1998,0.7902,0.009948,B
+0.04699,0.009252,0.9438,C
+0.09484,0.00535,0.8998,C
+0.7158,0.05185,0.2324,C
+0.2418,0.1008,0.6574,C
+0.04719,0.004974,0.9478,C
+0.9472,0.04716,0.005632,A
+0.02594,0.9734,0.0006913,B
+0.6123,0.01632,0.3714,A
+0.9518,0.04739,0.000766,B
+0.9057,0.01006,0.08424,A
+0.2386,0.1127,0.6487,C
+0.9981,0.0017,0.0002301,A
+0.2829,0.6788,0.03829,C
+0.0365,0.02214,0.9414,C
+0.01783,0.9737,0.008425,C
+0.9426,0.03225,0.02512,A
+0.2446,0.7533,0.002116,B
+0.0944,0.00995,0.8956,C
+0.9207,0.003763,0.07557,C
+0.1326,0.8646,0.002752,B
+0.04203,0.9565,0.001438,B
+0.5557,0.4328,0.01153,B
+0.344,0.6427,0.01334,B
+0.888,0.01843,0.09359,A
+0.979,0.005138,0.01582,A
+0.1182,0.8733,0.008561,B
+0.7595,0.02293,0.2176,C
+0.1063,0.003637,0.8901,C
+0.7572,0.2169,0.02591,B
+0.04203,0.9565,0.001438,B
+0.03516,0.9069,0.05797,B
+0.9993,0.0006263,0.0001233,A
+0.01794,0.002428,0.9796,C
+0.1121,0.828,0.05998,C
+0.04693,0.01047,0.9426,C
+0.8657,0.0431,0.09124,C
+0.06666,0.01313,0.9202,C
+0.01795,0.001892,0.9802,B
+0.9773,0.002422,0.02028,A
+0.01406,0.9858,0.0001217,B
+0.9735,0.02594,0.0005384,A
+0.5776,0.02538,0.397,A
+0.9168,0.06641,0.01679,B
+0.4683,0.5307,0.001024,B
+0.3613,0.04315,0.5956,A
+0.003593,0.9963,0.00006581,B
+0.9419,0.004943,0.05314,A
+0.1136,0.7406,0.1458,C
+0.1315,0.8577,0.0108,B
+0.1021,0.04258,0.8553,C
+0.168,0.07934,0.7527,C
+0.02289,0.9731,0.003977,B
+0.1102,0.8141,0.07572,B
+0.2813,0.5254,0.1933,C
+0.4683,0.06338,0.4683,B
+0.4373,0.4956,0.06707,B
+0.9935,0.00406,0.002463,C
+0.05979,0.9353,0.004908,B
+0.1899,0.3547,0.4554,B
+0.07564,0.9214,0.002933,B
+0.001325,0.9986,0.0001232,C
+0.974,0.02021,0.005792,B
+0.9811,0.01797,0.0008947,B
+0.05661,0.2537,0.6897,C
+0.3804,0.0661,0.5535,C
+0.8268,0.01041,0.1628,C
+0.2558,0.3721,0.3721,B
+0.04731,0.002356,0.9503,C
+0.9988,0.0005524,0.000626,A
+0.4682,0.5305,0.001315,B
+0.9355,0.03627,0.02825,C
+0.9994,0.0003353,0.0002959,A
+0.9825,0.00662,0.01091,A
+0.8607,0.04856,0.09072,C
+0.01794,0.002751,0.9793,C
+0.08474,0.004219,0.911,C
+0.006691,0.993,0.000294,C
+0.08482,0.9119,0.003289,B
+0.03278,0.00939,0.9578,C
+0.8352,0.01964,0.1451,A
+0.1136,0.7406,0.1458,C
+0.05635,0.4718,0.4718,C
+0.1714,0.3628,0.4658,C
+0.2013,0.7962,0.002534,B
+0.4347,0.007027,0.5582,C
+0.2061,0.2336,0.5603,A
+0.9978,0.001031,0.001168,A
+0.02926,0.9691,0.001651,B
+0.09516,0.9029,0.001975,B
+0.1725,0.4138,0.4138,B
+0.07539,0.006188,0.9184,C
+0.6433,0.05281,0.3039,C
+0.1941,0.7677,0.03822,C
+0.9069,0.03516,0.05797,C
+0.2933,0.7035,0.003258,A
+0.009707,0.9902,0.0001078,B
+0.02032,0.0007877,0.9789,C
+0.1605,0.02461,0.8149,B
+0.4994,0.4994,0.001238,B
+0.9556,0.007296,0.03705,A
+0.998,0.0017,0.0002607,A
+0.09451,0.8967,0.008791,A
+0.776,0.105,0.119,A
+0.06729,0.003796,0.9289,C
+0.4133,0.05594,0.5307,C
+0.4519,0.2741,0.2741,C
+0.6078,0.02357,0.3686,A
+0.03281,0.008296,0.9589,C
+0.8903,0.02688,0.08281,C
+0.8092,0.1806,0.01019,B
+0.7737,0.2217,0.004601,B
+0.9988,0.001032,0.0001233,A
+0.0738,0.02715,0.8991,B
+0.9414,0.0365,0.02214,B
+0.05993,0.002633,0.9374,A
+0.9854,0.0124,0.002156,B
+0.7516,0.03302,0.2153,C
+0.08092,0.87,0.04908,C
+0.1165,0.02293,0.8606,A
+0.5138,0.4534,0.03284,C
+0.02928,0.001002,0.9697,C
+0.04724,0.003878,0.9489,C
+0.8438,0.1142,0.04201,A
+0.8155,0.002595,0.182,A
+0.9724,0.02591,0.001657,B
+0.0668,0.2994,0.6338,C
+0.0591,0.1251,0.8158,B
+0.192,0.7594,0.04855,B
+0.3675,0.6059,0.02662,C
+0.02276,0.9678,0.009488,B
+0.04136,0.01724,0.9414,B
+0.02032,0.0004218,0.9793,C
+0.4273,0.5486,0.0241,B
+0.0949,0.004725,0.9004,C
+0.09504,0.9017,0.003252,B
+0.4644,0.4644,0.07122,B
+0.9406,0.05306,0.006338,B
+0.3126,0.02566,0.6618,A
+0.9806,0.01796,0.001474,A
+0.5603,0.2061,0.2336,B
+0.6145,0.01275,0.3727,C
+0.01242,0.9863,0.001309,B
+0.009692,0.9886,0.001684,B
+0.74,0.01972,0.2403,C
+0.587,0.4035,0.009489,B
+0.1772,0.701,0.1218,B
+</script>
+
+<script src="percent-fixer.js"></script>
+
+<script>
+// ---------- 画面 ----------
+const $ = (id) => document.getElementById(id)
+const pct = (v) => Math.round(v * 100) + '%'
+let rows = [], fitted = null, timers = [], lang = 'python'
+const sleep = (ms) => new Promise((r) => { const t = setTimeout(r, ms); timers.push(t) })
+for (let v = 50; v <= 95; v += 5) $('thr').insertAdjacentHTML('beforeend', `<option value="${v / 100}"${v === 80 ? ' selected' : ''}>${v}%</option>`)
+const threshold = () => Number($('thr').value)
+
+function read() {
+  const { rows: r, errors } = parseRecords($('input').value)
+  rows = r; fitted = null
+  const el = $('read')
+  if (!rows.length && !errors.length) { el.textContent = ''; el.className = 'read' }
+  else if (errors.length) { el.textContent = `${rows.length} 件を読み込みました。読めない行が ${errors.length} 行あります（${errors.slice(0, 3).map((e) => `${e.line} 行目: ${e.msg}`).join('、')}）`; el.className = 'read err' }
+  else { const kinds = [...new Set(rows.map((r) => r.n))].sort((a, b) => a - b); el.textContent = `${rows.length} 件を読み込みました。選択肢は ${kinds.join('・')} 個です。` + (rows.length < 50 ? '件数が少ないので、直す数 T がぶれます。' : ''); el.className = 'read' }
+  render()
+}
+function render() {
+  const thr = threshold(), label = pct(thr)
+  const before = rows.length ? gate(score(rows, 1), thr) : null
+  if (before && before.auto) {
+    $('bBig').innerHTML = `${pct(before.correct / before.auto)}<small>当たり</small>`; $('bBig').className = 'big'
+    $('bSub').textContent = `${label} 以上と出た ${before.auto} 件のうち ${before.correct} 件`
+  } else { $('bBig').textContent = '—'; $('bBig').className = 'big none'; $('bSub').textContent = rows.length ? `${label} 以上と出た判定はありません` : '記録を貼ると出ます' }
+  let after = null
+  if (fitted) {
+    after = gate(fitted.held, thr)
+    if (after.auto) { $('aBig').innerHTML = `${pct(after.correct / after.auto)}<small>当たり</small>`; $('aBig').className = 'big'; $('aSub').textContent = `${label} 以上と出た ${after.auto} 件のうち ${after.correct} 件。T を決めるのに使っていない判定で数えました` }
+    else { $('aBig').textContent = '—'; $('aBig').className = 'big none'; $('aSub').textContent = `直すと ${label} 以上と出る判定はありません` }
+  } else { $('aBig').textContent = '—'; $('aBig').className = 'big none'; $('aSub').textContent = '「直す」を押すと出ます' }
+  // ひとことで言う
+  let say = ''
+  if (before && before.auto) say = `そのままの確率で ${label} 以上を自動で通すと、<b class="bad">${before.auto} 件のうち ${before.auto - before.correct} 件が外れます</b>。`
+  if (after && after.auto) say += `直した確率なら、自動で通すのは ${after.auto} 件になり、<b class="good">外れは ${after.auto - after.correct} 件です</b>。残りは人に回します。`
+  $('say').innerHTML = say
+  // 帯ごとの内訳
+  const bb = rows.length ? bins(score(rows, 1)) : [], ab = fitted ? bins(fitted.held) : []
+  const cell = (b) => b ? `${b.n} 件・<span class="n">${pct(b.acc)}</span>` : '—'
+  let html = '<thead><tr><th>出た%</th><th>そのまま</th><th>直した後</th></tr></thead><tbody>'
+  for (let i = 9; i >= 3; i--) if (bb[i] || ab[i]) html += `<tr><td class="t">${i * 10}〜${i * 10 + 10}%</td><td>${cell(bb[i])}</td><td>${cell(ab[i])}</td></tr>`
+  $('bands').innerHTML = rows.length ? html + '</tbody>' : ''
+  // 式
+  if (fitted) { $('tOut').textContent = fitted.T.toFixed(2); $('code').textContent = codeFor(fitted.T)[lang]; $('copy').disabled = false }
+  else { $('tOut').textContent = '—'; $('code').textContent = '「直す」を押すと、ここに式が出ます。'; $('copy').disabled = true }
+}
+function run() {
+  if (rows.length < 10) { $('read').textContent = '直すには、答え合わせ済みの記録が 10 件以上要ります。'; $('read').className = 'read err'; return }
+  const T = fitTemperature(rows)
+  const { held } = crossValidate(rows, foldsFor(rows.length))
+  fitted = { T, held }; render()
+}
+function stop() { for (const t of timers) clearTimeout(t); timers = [] }
+function clearAll() { stop(); $('input').value = ''; $('say').classList.remove('lit'); read(); $('auto').disabled = false }
+function loadSample() { $('input').value = $('sample-data').textContent.trim(); $('input').scrollTop = 0; read() }
+async function auto() {
+  clearAll(); $('auto').disabled = true; document.body.dataset.demo = 'running'
+  $('tool').scrollIntoView({ behavior: 'smooth', block: 'start' })
+  await sleep(900); loadSample()
+  await sleep(2200); run()
+  await sleep(1400); $('say').classList.add('lit')   // 結果のひとことを強調して、読む時間を取る
+  await sleep(2200)
+  $('auto').disabled = false
+  document.body.dataset.demo = 'done'   // 録画と検査がここを待つ
+}
+let debounce = 0
+$('input').addEventListener('input', () => { clearTimeout(debounce); debounce = setTimeout(read, 250) })
+$('thr').addEventListener('change', render)
+$('sample').addEventListener('click', () => { stop(); loadSample() })
+$('run').addEventListener('click', () => { stop(); run() })
+$('clear').addEventListener('click', clearAll)
+$('auto').addEventListener('click', auto)
+$('copy').addEventListener('click', async () => {
+  const text = $('code').textContent
+  try { await navigator.clipboard.writeText(text); $('copy').textContent = 'コピーしました' } catch { const r = document.createRange(); r.selectNodeContents($('code')); const s = getSelection(); s.removeAllRanges(); s.addRange(r); $('copy').textContent = '選択しました。コピーして使ってください' }
+  setTimeout(() => { $('copy').textContent = 'コピー' }, 1600)
+})
+read()
+if (new URLSearchParams(location.search).get('auto') === '1') setTimeout(auto, 400)
+</script>
+</body>
+</html>
