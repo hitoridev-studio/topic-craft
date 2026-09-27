@@ -78,6 +78,12 @@
   <h1 style="margin-top:8px">LLM や Jev が出す<span style="white-space:nowrap">「◯%確か」</span>を、本当の%に直すツール</h1>
   <p class="lead">LLM や Jev は、判定に 80% のような確率を付けます。ですが、80% と出た判定が本当に 8 割当たるとは限りません。公開されている Qwen3.5-4B の判定 256 件で数えると、80% 以上と出た 171 件のうち、当たったのは 73% でした。</p>
   <p class="lead">そこで、答え合わせ済みの判定の記録を貼ると、確率を本当に当たる割合に直す式が出るツールを作りました。確率にしきい値を置いて、自動で通すか人に回すかを決める前に使ってください。</p>
+
+  <div class="code">
+    <p class="l">コード · MIT</p>
+    <p>計算は <code>percent-fixer.js</code> の 1 ファイルで、依存なし。Node でもブラウザでも読めて、自分のコードにそのまま入れられます。テスト 11 件つき。</p>
+    <a class="go" href="https://github.com/hitoridev-studio/topic-craft/tree/main/works/2026-09-25-llm-percent-fixer"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12"/></svg>GitHub でコードを見る</a>
+  </div>
   <p class="meta"><span>ブラウザだけで動きます。貼った記録は外に送りません</span></p>
 
   <section id="tool">
@@ -177,7 +183,7 @@ Jev の返り値の形でも貼れます。書き方は下の「使い方」に�
   </div>
   </div>
 
-  <p class="foot">出典: <a href="https://github.com/TheoLeeCJ/SemIf-OpenJev">SemIf</a>（TheoLeeCJ・コミット 23cf1f3・MIT）の README・docs/CALIBRATION.md・results/raw の記録。正解は <a href="https://huggingface.co/datasets/alisawuffles/WANLI">WANLI</a>（Liu ほか 2022・CC BY 4.0）。Jev の返り値と confidence の式は <a href="https://docs.typesafe.ai/primitives/choice">TypeSafe の文書</a>（Choice・Noul・Confidence）。温度スケーリングは <a href="https://arxiv.org/abs/1706.04599">Guo ほか, On Calibration of Modern Neural Networks（2017）</a>。背景は <a href="https://zenn.dev/nwn/articles/824026c76116e0">nwn「TypeSafeのJevを正しく驚く、それってLLMでできませんか？」</a>と<a href="https://note.com/kantahayashiai/n/n4c54eed30787">林寛太「Jevはサイコロを振らない」</a>。見本の作り直しは <code>make-data.mjs</code>。このページのコードは MIT（<a href="https://github.com/hitoridev-studio/topic-craft">GitHub</a>）。作ったのは hitori（<a href="https://x.com/botchi_the_dev">X</a>）。</p>
+  <p class="foot">出典: <a href="https://github.com/TheoLeeCJ/SemIf-OpenJev">SemIf</a>（TheoLeeCJ・コミット 23cf1f3・MIT）の README・docs/CALIBRATION.md・results/raw の記録。正解は <a href="https://huggingface.co/datasets/alisawuffles/WANLI">WANLI</a>（Liu ほか 2022・CC BY 4.0）。Jev の返り値と confidence の式は <a href="https://docs.typesafe.ai/primitives/choice">TypeSafe の文書</a>（Choice・Noul・Confidence）。温度スケーリングは <a href="https://arxiv.org/abs/1706.04599">Guo ほか, On Calibration of Modern Neural Networks（2017）</a>。背景は <a href="https://zenn.dev/nwn/articles/824026c76116e0">nwn「TypeSafeのJevを正しく驚く、それってLLMでできませんか？」</a>と<a href="https://note.com/kantahayashiai/n/n4c54eed30787">林寛太「Jevはサイコロを振らない」</a>。見本の作り直しは <code>make-data.mjs</code>。このページのコードは MIT（<a href="https://github.com/hitoridev-studio/topic-craft/tree/main/works/2026-09-25-llm-percent-fixer">GitHub</a>）。作ったのは hitori（<a href="https://x.com/botchi_the_dev">X</a>）。</p>
 </div>
 
 <script src="../../assets/flow.js" defer></script>

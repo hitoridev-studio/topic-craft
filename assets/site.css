@@ -70,3 +70,11 @@ p { margin: 0 0 16px; }
 .tbl .n { font-family: var(--mono); font-variant-numeric: tabular-nums; color: var(--blue-deep); white-space: nowrap; }
 .tbl .t { font-family: var(--mono); font-size: 12.5px; color: var(--ink-3); white-space: nowrap; }
 .cap { font-size: 13px; color: var(--ink-3); line-height: 1.6; margin: 0 0 16px; }
+
+/* 作品ページのコードの帯。題と説明文のすぐ下、デモより上に置き、作品フォルダ（GitHub）へ送る */
+.code { border: 1.5px solid var(--blue); background: var(--wash); border-radius: 12px; padding: 12px 14px 14px; margin: 18px 0 8px; }
+.code .l { font-family: var(--mono); font-size: 11.5px; letter-spacing: .08em; color: var(--blue-deep); margin: 0 0 2px; }
+.code p { color: var(--ink-2); font-size: 14.5px; line-height: 1.7; margin: 0 0 10px; }
+.code a.go { display: flex; align-items: center; justify-content: center; gap: 8px; min-height: 48px; border-radius: 999px; background: var(--blue); color: #fff; font-weight: 600; font-size: 15px; text-decoration: none; }
+.code a.go:hover { background: var(--blue-deep); }
+.code a.go svg { width: 16px; height: 16px; fill: currentColor; }
