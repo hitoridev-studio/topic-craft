@@ -1,7 +1,7 @@
 {
   "kind": "もの",
   "date": "2026-09-29",
-  "title": "迷うものだけ人に回す、日本語の問い合わせ振り分けツール。手元の PC だけで動く",
+  "title": "APIキーもGPUもいらない。普通のPCのCPUだけで、日本語の問い合わせを1秒で担当に振り分ける",
   "summary": "問い合わせを入れると、11 の担当ごとの確率が出て、90% 以上はそのまま担当へ、どちらとも取れるものは人に回します。Jev と同じ呼び方で使える小さなモデル Jeff を手元の CPU で動かすので、API キーも GPU も要りません。",
   "card": "card.jpg",
   "source": { "label": "Jeff（firelex）", "url": "https://github.com/firelex/jeff" }
