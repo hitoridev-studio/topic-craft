@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>問い合わせの振り分け</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+JP:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&family=Zen+Maru+Gothic:wght@500;700&display=swap">
+<link rel="stylesheet" href="/board.css">
+</head>
+<body>
+<div class="app">
+  <header class="bar"><h1>問い合わせ</h1><span class="live" id="live"><i></i>この PC で判定</span></header>
+
+  <section class="inbox" aria-label="いま届いた問い合わせ">
+    <div class="who"><span class="mark guest">客</span><b id="number">#1</b><span>いま届いた</span></div>
+    <textarea id="text" rows="2" placeholder="お客様の問い合わせを入れる"></textarea>
+    <div class="verdict" id="verdict">ここに振り分け先が出ます</div>
+    <div class="row"><span id="note"></span><span><span class="mono" id="ms"></span> <button class="go" id="go">振り分ける</button></span></div>
+  </section>
+
+  <section class="grid" id="grid" aria-label="担当ごとの件数"></section>
+
+  <footer class="foot">
+    <span>自動で回した <b id="automatic">0</b></span><span>人へ <b id="human">0</b></span>
+    <button class="samples" id="samples">見本を流す</button>
+  </footer>
+</div>
+<script src="/board.js"></script>
+</body>
+</html>

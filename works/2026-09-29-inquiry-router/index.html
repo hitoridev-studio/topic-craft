@@ -1,0 +1,105 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>迷うものだけ人に回す、日本語の問い合わせ振り分けツール。手元の PC だけで動く</title>
+<meta name="description" content="お客様の問い合わせを入れると、11 の担当のどれが受けるかが確率つきで出て、90% 以上ならそのまま担当へ、どちらとも取れるものは人に回します。API キーも GPU も要らず、手元の CPU で 1 件約 0.9 秒。">
+<meta property="og:title" content="迷うものだけ人に回す、日本語の問い合わせ振り分けツール。手元の PC だけで動く">
+<meta property="og:description" content="問い合わせを入れると 11 の担当ごとの確率が出て、90% 以上は自動で担当へ、迷うものだけ人へ。Jev と同じ呼び方で使える小さな判定モデル Jeff を、手元の CPU で動かします。">
+<meta property="og:image" content="https://hitoridev-studio.github.io/topic-craft/works/2026-09-29-inquiry-router/card.jpg">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+JP:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&family=Zen+Maru+Gothic:wght@500;700&display=swap">
+<link rel="stylesheet" href="../../assets/site.css">
+<link rel="stylesheet" href="../../assets/flow.css">
+<link rel="icon" href="../../assets/favicon.svg" type="image/svg+xml">
+<link rel="icon" href="../../assets/favicon-32.png" sizes="32x32" type="image/png">
+<link rel="apple-touch-icon" href="../../assets/apple-touch-icon.png">
+<style>
+  .lead { color: var(--ink-2); font-size: 17px; line-height: 1.75; margin: 0 0 12px; }
+  .shot { display: block; width: min(100%, 360px); margin: 18px auto 6px; border-radius: 18px; border: 1px solid var(--line); box-shadow: 0 16px 40px -20px #3b3f4a55; }
+  .cap { text-align: center; font-size: 13px; color: var(--ink-3); margin: 0 0 8px; }
+  pre { background: var(--wash); border: 1px solid var(--line); border-radius: 10px; padding: 12px 14px; overflow-x: auto; font-family: var(--mono); font-size: 12.5px; line-height: 1.7; }
+  code { font-family: var(--mono); font-size: .92em; }
+  ul.find { padding-left: 1.2em; margin: 8px 0 16px; }
+  ul.find li { margin-bottom: 8px; }
+  .note { color: var(--ink-2); font-size: 14.5px; line-height: 1.75; padding-left: 14px; border-left: 3px solid var(--pink); margin: 14px 0; }
+  .note p:last-child { margin-bottom: 0; }
+  .foot { margin-top: 56px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top"><a class="brand" href="../../index.html"><img class="avatar" src="../../assets/avatar.png" alt="">hitori</a><span class="tag">topic craft</span></header>
+  <p class="meta" style="margin-top:40px"><span>2026-09-29</span><span class="kind">もの</span></p>
+
+  <h1 style="margin-top:8px">迷うものだけ人に回す、日本語の問い合わせ振り分けツール。手元の PC だけで動く</h1>
+  <p class="lead">お客様の問い合わせを、返金・注文・アカウントなど 11 の担当に振り分ける道具を作りました。問い合わせを入れると、担当ごとの確率が出ます。いちばん高い確率が 90% 以上ならそのまま担当へ回し、どちらとも取れるものは「要確認」として人に回します。</p>
+  <p class="lead">判定するのは、Jev と同じ呼び方で使える小さなモデル Jeff です。API キーも GPU も要らず、手元の 4 コアの CPU で 1 件約 0.9 秒でした。問い合わせを外に出せない窓口や、振り分けを毎回人が読んで決めているチームで使えます。</p>
+
+  <div class="code">
+    <p class="l">コード · MIT</p>
+    <p>サーバーと画面と、自分の問い合わせで当たり方を測るスクリプト（Python）。担当は <code>teams.json</code> を書き換えるだけで自分のものに変えられます。テスト 11 件つき。</p>
+    <a class="go" href="https://github.com/hitoridev-studio/topic-craft/tree/main/works/2026-09-29-inquiry-router"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12"/></svg>GitHub でコードを見る</a>
+  </div>
+
+  <h2>画面</h2>
+  <img class="shot" src="screen.png" alt="振り分けボードの画面。いま届いた問い合わせ「サイズ間違えたのでキャンセルして返金してほしい」が、返金 72・注文 28 に割れて要確認になり、下に 11 の担当と要確認の件数が並ぶ">
+  <p class="cap">起動して出る画面。この問い合わせは返金 72%・注文 28% に割れたので、人に回しました</p>
+  <p>落として動かす手順です（Python 3.10 以上と、約 2 GB の空き）。<code>http://127.0.0.1:8765/</code> を開き、問い合わせを入れて「振り分ける」を押します。</p>
+<pre>git clone --depth 1 https://github.com/hitoridev-studio/topic-craft
+cd topic-craft/works/2026-09-29-inquiry-router
+python3 -m venv .venv &amp;&amp; . .venv/bin/activate
+pip install --index-url https://download.pytorch.org/whl/cpu torch==2.14.0 torchvision==0.29.0
+pip install -r requirements.txt
+hf download mstrasser/Jeff-Qwen3.5-0.8B --local-dir model/jeff-0.8b --exclude "videos/*"
+python -m router.server</pre>
+
+  <h2>仕組み</h2>
+  <script type="application/json" id="flow-how">
+  {
+    "id": "2026-09-29-inquiry-router-how",
+    "title": "問い合わせが担当か要確認に振り分けられるまで",
+    "direction": "TB",
+    "legend": [{ "tone": "gold", "label": "あなた" }, { "tone": "pink", "label": "あなたが書くもの" }, { "tone": "blue", "label": "この道具" }],
+    "nodes": [
+      { "id": "q", "eyebrow": "あなた", "tone": "gold", "title": "問い合わせを入れる", "body": "「サイズ間違えたのでキャンセルして返金してほしい」" },
+      { "id": "t", "eyebrow": "あなたが書くもの", "tone": "pink", "title": "teams.json", "body": "担当ごとに 1 行の説明。モデルはこの説明を読んで選ぶ" },
+      { "id": "p", "eyebrow": "この道具", "tone": "blue", "title": "Jev と同じ形の問いにする", "body": "問い合わせ・質問・担当の説明に A〜K の記号を振って 1 つの文にする" },
+      { "id": "j", "eyebrow": "この道具", "tone": "blue", "title": "Jeff に 1 回だけ通す", "body": "文章は書かせない。A〜K の記号それぞれの確率を読む（1 件約 0.9 秒）" },
+      { "id": "a", "eyebrow": "この道具", "tone": "blue", "title": "90% 以上 → 担当へ", "body": "返金 99% なら、そのまま返金の担当へ" },
+      { "id": "h", "eyebrow": "あなた", "tone": "gold", "title": "90% 未満 → 要確認", "body": "返金 72・注文 28 のように割れたものだけ、人が見る" }
+    ],
+    "edges": [
+      { "source": "q", "target": "p" }, { "source": "t", "target": "p", "dashed": true },
+      { "source": "p", "target": "j" }, { "source": "j", "target": "a", "label": "確実" }, { "source": "j", "target": "h", "label": "迷う" }
+    ]
+  }
+  </script>
+  <div class="flow" data-graph="flow-how"></div>
+  <p>Jeff は、状況と選択肢を渡すと選択肢ごとの確率だけを返す「判定モデル」です。Jev と同じ呼び方（状況・質問・選択肢の説明）で使え、元は Qwen3.5 の 0.8B を英語のデータで学習させたものです。文章を生成しないので、1 回通すだけで済み、CPU でも待てる速さになります。作者は学習のあとに温度を 1 つ合わせ、確率が当たる割合に合うよう較正したと書いています。</p>
+
+  <h2>確かめたこと</h2>
+  <p>手元の 4 コアの CPU（Intel Xeon 2.1 GHz・GPU なし）で、EC の問い合わせ 330 件（11 の担当 × 30 件）を測りました。</p>
+  <ul class="find">
+    <li>正解率は 92.7%（330 件中 306 件）。確率 90% 以上だけ自動にすると、58% を自動で回し、その中の外れは 192 件中 1 件でした。</li>
+    <li>担当の説明を英語で書くと、同じ問い合わせで 81.8% でした。説明の書き方で 10 ポイント以上変わります。</li>
+    <li>問い合わせが日本語でも英語でも、正解率は変わりませんでした（英語の説明で 81.8% と 80.0%）。</li>
+    <li>Jeff の作者は英語でしか測っていません。学習する前のモデルは、日本語の依頼 600 件（音声アシスタント・18 択）で 42〜47% でしたが、Jeff は 84〜86% でした。英語で学習した判定の力が、日本語にも効いています。</li>
+    <li>Jeff に渡す文が、Jeff の元のコードが組み立てる文と 1 文字も違わないことを、テストで確かめています（<code>tests/test_decision.py</code>）。</li>
+  </ul>
+
+  <h2>注意</h2>
+  <div class="note">
+    <p>測った問い合わせは、英語の公開データ（Bitext）を言語モデルで日本語に訳したものです。実際のお客様の文は、もっと長く、話がいくつも混ざります。自分の問い合わせで <code>python -m router.evaluate</code> を走らせてから使ってください。</p>
+    <p>自信を持って外すこともあります。「注文した商品がいつ届くか確認できますか？」を、正解の「配送」ではなく「注文」に 93% で回しました。</p>
+    <p>推論が要る判断には向きません。日本語の常識問題（JCommonsenseQA）では 76.9% で、Jev の公表値 97.1% に届きません。Jeff は Jev の開発元とは関係のない、独立したプロジェクトです。</p>
+  </div>
+
+  <p class="foot">出典: <a href="https://github.com/firelex/jeff">Jeff</a>（コードは MIT、<a href="https://huggingface.co/mstrasser/Jeff-Qwen3.5-0.8B">重み</a>は Apache 2.0）。問い合わせのデータは <a href="https://huggingface.co/datasets/bitext/Bitext-customer-support-llm-chatbot-training-dataset">Bitext</a>（CDLA-Sharing-1.0）。Jev の日本語の値は <a href="https://zenn.dev/ivry/articles/65c1c4242e1156">IVRy の記事</a>。このページのコードは MIT（<a href="https://github.com/hitoridev-studio/topic-craft/tree/main/works/2026-09-29-inquiry-router">GitHub</a>）。作ったのは hitori（<a href="https://x.com/botchi_the_dev">X</a>）。</p>
+</div>
+<script src="../../assets/flow.js" defer></script>
+</body>
+</html>

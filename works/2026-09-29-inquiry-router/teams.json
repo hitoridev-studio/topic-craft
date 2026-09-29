@@ -1,0 +1,72 @@
+{
+  "instructions": "このお客様の問い合わせは、どの担当が対応すべきですか？",
+  "threshold": 0.9,
+  "teams": {
+    "ACCOUNT": {
+      "name": "アカウント",
+      "description": "アカウント：登録・ログイン・パスワード再設定・登録情報の変更・切り替え・退会",
+      "color": "#4a7fd4",
+      "mark": "ア"
+    },
+    "CANCEL": {
+      "name": "解約料",
+      "description": "解約料：解約するときの手数料の確認",
+      "color": "#c46a6a",
+      "mark": "解"
+    },
+    "CONTACT": {
+      "name": "窓口",
+      "description": "窓口：サポートや担当者と直接話したい",
+      "color": "#7c8494",
+      "mark": "窓"
+    },
+    "DELIVERY": {
+      "name": "配送",
+      "description": "配送：配送方法や届くまでの日数",
+      "color": "#d08a4e",
+      "mark": "配"
+    },
+    "FEEDBACK": {
+      "name": "ご意見",
+      "description": "ご意見：苦情やレビュー",
+      "color": "#6aa0c4",
+      "mark": "意"
+    },
+    "INVOICE": {
+      "name": "請求書",
+      "description": "請求書：請求書の確認・発行",
+      "color": "#6b8fa8",
+      "mark": "請"
+    },
+    "ORDER": {
+      "name": "注文",
+      "description": "注文：注文する・変更・キャンセル・注文状況の確認",
+      "color": "#c99a24",
+      "mark": "注"
+    },
+    "PAYMENT": {
+      "name": "支払い",
+      "description": "支払い：使える支払い方法や支払いの不具合",
+      "color": "#8a76c9",
+      "mark": "支"
+    },
+    "REFUND": {
+      "name": "返金",
+      "description": "返金：返金の条件・返金の依頼・返金状況の確認",
+      "color": "#e08a9b",
+      "mark": "返"
+    },
+    "SHIPPING": {
+      "name": "お届け先",
+      "description": "お届け先：お届け先の住所の登録・変更",
+      "color": "#5aa98c",
+      "mark": "届"
+    },
+    "SUBSCRIPTION": {
+      "name": "メルマガ",
+      "description": "メルマガ：メールマガジンの購読の登録・解除",
+      "color": "#b07cc0",
+      "mark": "メ"
+    }
+  }
+}
